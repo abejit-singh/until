@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="color-scheme" content="dark only">
+<meta name="theme-color" content="#070707">
+<title>UNTIL — You don't have forever.</title>
+<meta name="description" content="Visualize the time you've lived, the time you may have left, and what you're doing with it.">
+<meta property="og:title" content="UNTIL — You don't have forever.">
+<meta property="og:description" content="Visualize the time you've lived, the time you may have left, and what you're doing with it.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="UNTIL — You don't have forever.">
+<meta name="twitter:description" content="Visualize the time you've lived, the time you may have left, and what you're doing with it.">
+<link rel="icon" type="image/png" href="favicon-32.png">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="UNTIL">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ============================= TOKENS ============================= */
+  :root{
+    color-scheme:dark only;
+    --bg:#070707;
+    --bg-elevated:#0d0d0d;
+    --bg-card:#121212;
+    --border:rgba(244,244,240,0.08);
+    --border-strong:rgba(244,244,240,0.16);
+    --text:#F4F4F0;
+    --text-dim:rgba(244,244,240,0.58);
+    --text-dimmer:rgba(244,244,240,0.34);
+    --accent:#8DFF6A;
+    --accent-glow:rgba(141,255,106,0.45);
+    --red:#ff6a6a;
+    --amber:#ffb86a;
+    --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --font-display:'Space Grotesk',var(--font-sans);
+    --font-mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
+    --ease:cubic-bezier(.16,1,.3,1);
+  }
+
+  /* ============================= RESET ============================= */
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background-color:var(--bg);
+    background-image:radial-gradient(rgba(244,244,240,0.03) 1px, transparent 1px);
+    background-size:16px 16px;
+    color:var(--text);
+    font-family:var(--font-sans);
+    font-weight:300;
+    line-height:1.5;
+    overflow-x:hidden;
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+  }
+  ::selection{background:var(--accent);color:#070707;}
+  img,svg{display:block;max-width:100%;}
+  button,input,select{font:inherit;color:inherit;}
+  a{color:inherit;}
+  h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:-0.02em;line-height:1.05;}
+  h2{font-size:clamp(2rem,5.2vw,3.5rem);margin-bottom:1rem;}
+  p{max-width:60ch;}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+
+  @media (prefers-reduced-motion: reduce){
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+    html{scroll-behavior:auto;}
+  }
+
+  /* ============================= CHROME (progress / reset / tooltip) ============================= */
+  .progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:var(--accent);z-index:999;box-shadow:0 0 10px var(--accent-glow);}
+
+  .reset-btn{
+    position:fixed;bottom:20px;left:20px;width:42px;height:42px;border-radius:50%;
+    background:rgba(244,244,240,0.03);border:1px solid var(--border);color:var(--text-dimmer);
+    font-size:1.05rem;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;
+    transition:all .35s var(--ease);backdrop-filter:blur(8px);
+  }
+  .reset-btn:hover{border-color:var(--accent);color:var(--accent);transform:rotate(-70deg);}
+
+  .tooltip{
+    position:fixed;pointer-events:none;z-index:1000;background:#0c0c0c;border:1px solid var(--border-strong);
+    color:var(--text);font-family:var(--font-mono);font-size:.72rem;padding:7px 11px;border-radius:7px;
+    opacity:0;transition:opacity .15s;white-space:nowrap;transform:translate(-50%,-130%);
+  }
+
+  /* ============================= LAYOUT ============================= */
+  .section{
+    min-height:100vh;padding:clamp(5rem,12vh,8rem) clamp(1.5rem,7vw,5rem);
+    display:flex;flex-direction:column;justify-content:center;position:relative;
+    max-width:1160px;margin:0 auto;width:100%;
+  }
+  .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease);}
+  .reveal.is-visible{opacity:1;transform:translateY(0);}
+
+  .eyebrow{
+    display:inline-block;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.18em;
+    color:var(--accent);text-transform:uppercase;margin-bottom:1.1rem;
+  }
+  .lede{color:var(--text-dim);margin-bottom:2.25rem;font-size:1.02rem;font-weight:300;}
+
+  /* ============================= BUTTONS & FIELDS ============================= */
+  .btn{
+    font-family:var(--font-sans);font-weight:600;font-size:.98rem;padding:1rem 1.7rem;border-radius:999px;
+    border:1px solid transparent;cursor:pointer;transition:all .3s var(--ease);display:inline-flex;
+    align-items:center;gap:.5rem;white-space:nowrap;
+  }
+  .btn-primary{background:var(--accent);color:#070707;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px var(--accent-glow);}
+  .btn-primary:active{transform:translateY(0);}
+  .btn-ghost{background:transparent;color:var(--text);border-color:var(--border-strong);}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+  .arrow{transition:transform .3s var(--ease);}
+  .btn:hover .arrow{transform:translateX(4px);}
+
+  input[type="date"],input[type="text"],input[type="number"],select{
+    width:100%;background:var(--bg-card);border:1px solid var(--border);color:var(--text);
+    padding:.9rem 1rem;border-radius:10px;font-size:1rem;font-family:var(--font-sans);
+    transition:border-color .25s;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.6);cursor:pointer;}
+  input[type="date"]:focus,input[type="text"]:focus,input[type="number"]:focus,select:focus{outline:none;border-color:var(--accent);}
+
+  input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:var(--border-strong);border-radius:2px;outline:none;}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;background:var(--accent);cursor:pointer;box-shadow:0 0 14px var(--accent-glow);transition:transform .2s;}
+  input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.15);}
+  input[type="range"]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--accent);border:none;cursor:pointer;}
+  input[type="range"]::-moz-range-track{background:var(--border-strong);height:4px;border-radius:2px;}
+
+  .field{margin:1.6rem 0;max-width:460px;}
+  .field label{display:block;font-size:.86rem;color:var(--text-dim);margin-bottom:.65rem;}
+  .field-value{color:var(--accent);font-family:var(--font-mono);}
+  .disclaimer{font-size:.84rem;color:var(--text-dimmer);margin:1.4rem 0 2rem;line-height:1.65;max-width:460px;}
+  .error-msg{color:var(--red);font-size:.85rem;margin-top:1rem;}
+
+  /* ============================= HERO ============================= */
+  .hero{align-items:flex-start;text-align:left;}
+  .hero::before{
+    content:'';position:absolute;top:12%;left:6%;width:560px;height:560px;max-width:80vw;
+    background:radial-gradient(circle,rgba(141,255,106,.09),transparent 70%);filter:blur(30px);
+    pointer-events:none;z-index:-1;
+  }
+  .hero-content{max-width:900px;opacity:0;animation:heroIn 1s var(--ease) forwards;animation-delay:.1s;}
+  .hero-title{font-family:var(--font-display);font-size:clamp(3.4rem,13vw,8.5rem);font-weight:700;letter-spacing:-.03em;line-height:.95;}
+  .hero-title .dot{color:var(--accent);}
+  .hero-tagline{font-family:var(--font-display);font-size:clamp(1.35rem,4vw,2.1rem);color:var(--text-dim);margin-top:.9rem;font-weight:500;}
+  .hero-subtitle{max-width:520px;margin-top:1.6rem;color:var(--text-dim);font-size:1.05rem;font-weight:300;}
+  .hero-content .btn{margin-top:2.4rem;}
+  .scroll-hint{
+    position:absolute;bottom:2.6rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;
+    align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;
+    color:var(--text-dimmer);opacity:0;animation:heroIn 1s var(--ease) forwards,bob 2.6s ease-in-out infinite 1.1s;
+    animation-delay:.6s;
+  }
+  @keyframes heroIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,7px);}}
+
+  /* ============================= SETUP ============================= */
+  .setup-inner{max-width:520px;}
+
+  /* ============================= YOUR LIFE ============================= */
+  .life-stat-main{margin-bottom:2.75rem;}
+  .big-stat{font-family:var(--font-mono);font-size:clamp(2.6rem,8.8vw,5.2rem);font-weight:700;line-height:1;}
+  .big-stat .unit{font-size:.34em;color:var(--text-dim);font-family:var(--font-sans);font-weight:400;margin-left:.4rem;}
+  .basis-note{font-size:.85rem;color:var(--text-dimmer);margin:.5rem 0 1.75rem;max-width:480px;}
+  .surpassed-note{color:var(--accent);font-size:.9rem;margin-bottom:1.75rem;max-width:480px;}
+  .life-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:.5rem;}
+  .stat-card{background:var(--bg-card);padding:1.4rem 1.5rem;display:flex;flex-direction:column;gap:.5rem;}
+  .stat-label{font-size:.76rem;color:var(--text-dim);}
+  .stat-value{font-family:var(--font-mono);font-size:1.55rem;font-weight:600;}
+  .stat-unit{font-size:.62em;color:var(--text-dim);font-weight:400;font-family:var(--font-sans);}
+
+  /* ============================= LIFE IN WEEKS ============================= */
+  .weeks-legend{display:flex;gap:1.5rem;margin:.25rem 0 2rem;font-size:.8rem;color:var(--text-dim);flex-wrap:wrap;}
+  .legend-item{display:flex;align-items:center;gap:.55rem;}
+  .legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+  .legend-dot.past{background:rgba(244,244,240,0.32);}
+  .legend-dot.current{background:var(--accent);box-shadow:0 0 6px var(--accent-glow);}
+  .legend-dot.future{background:rgba(244,244,240,0.06);}
+  .weeks-grid{display:grid;grid-template-columns:repeat(52,1fr);gap:3px;margin-top:.5rem;}
+  .week-dot{aspect-ratio:1;border-radius:1.5px;transition:transform .15s var(--ease);cursor:default;}
+  .week-dot:hover{transform:scale(1.7);}
+  .week-dot.past{background:rgba(244,244,240,0.3);}
+  .week-dot.current{background:var(--accent);box-shadow:0 0 7px var(--accent-glow);animation:pulse 2.2s ease-in-out infinite;}
+  .week-dot.future{background:rgba(244,244,240,0.05);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+  @media (max-width:640px){
+    #lifeInWeeks{padding-left:1.1rem;padding-right:1.1rem;}
+    .weeks-grid{gap:1.5px;}
+  }
+
+  /* ============================= HABITS ============================= */
+  .habit-list{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.3rem;}
+  .habit-row{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border);padding:.7rem 1rem;border-radius:12px;}
+  .habit-name{flex:1 1 140px;min-width:100px;background:transparent;border:none;padding:.3rem 0;}
+  .habit-name:focus{outline:none;}
+  .habit-hours-wrap{display:flex;align-items:center;gap:.5rem;flex-shrink:0;}
+  .habit-hours{width:68px;background:rgba(244,244,240,0.03);border:1px solid var(--border);border-radius:8px;padding:.4rem .5rem;font-family:var(--font-mono);text-align:center;font-size:.92rem;}
+  .habit-unit{font-size:.74rem;color:var(--text-dimmer);}
+  .habit-remove{background:none;border:none;color:var(--text-dimmer);font-size:1.15rem;cursor:pointer;width:30px;height:30px;border-radius:50%;transition:all .2s;flex-shrink:0;}
+  .habit-remove:hover{color:var(--red);background:rgba(255,106,106,0.1);}
+  .habit-warning{color:var(--amber);font-size:.84rem;margin:.4rem 0 0;}
+  .habit-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:.25rem;}
+
+  .habit-chart{margin-top:2.75rem;display:flex;flex-direction:column;gap:1.05rem;}
+  .chart-row{display:grid;grid-template-columns:minmax(90px,140px) 1fr 64px;align-items:center;gap:1rem;}
+  .chart-label{font-size:.84rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .chart-track{height:9px;background:var(--bg-card);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .chart-fill{height:100%;background:linear-gradient(90deg,rgba(141,255,106,.35),var(--accent));border-radius:6px;transition:width .8s var(--ease);width:0%;}
+  .chart-value{font-family:var(--font-mono);font-size:.82rem;text-align:right;color:var(--text-dim);}
+  .chart-empty{color:var(--text-dimmer);font-size:.9rem;margin-top:1rem;}
+
+  /* ============================= WHAT IF ============================= */
+  .whatif-controls{max-width:520px;}
+  .whatif-current{font-family:var(--font-mono);color:var(--text-dim);margin:1.1rem 0 .3rem;font-size:.92rem;}
+  .whatif-target-label{font-family:var(--font-mono);color:var(--accent);margin-top:.85rem;font-size:.92rem;}
+  .whatif-result{margin-top:2.6rem;padding:2.1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;text-align:center;max-width:480px;}
+  .whatif-result .big-number{font-family:var(--font-mono);font-size:clamp(2.8rem,9vw,4.6rem);font-weight:700;color:var(--accent);line-height:1;}
+  .whatif-result .big-label{color:var(--text-dim);margin-top:.4rem;font-size:.95rem;}
+  .whatif-result .sub-line{font-family:var(--font-mono);color:var(--text-dimmer);font-size:.82rem;margin-top:1.1rem;}
+
+  /* ============================= FUTURE / MILESTONES ============================= */
+  .milestone-form{display:flex;gap:.75rem;margin:2rem 0 2.25rem;flex-wrap:wrap;}
+  .milestone-form input[type="text"]{flex:2;min-width:200px;}
+  .milestone-form input[type="date"]{flex:1;min-width:150px;}
+  .milestone-form button{flex-shrink:0;}
+  .milestone-list{display:flex;flex-direction:column;border-left:2px solid var(--border-strong);margin-left:6px;}
+  .milestone-empty{color:var(--text-dimmer);font-size:.9rem;padding:.5rem 0 .5rem 1.5rem;}
+  .milestone-item{display:flex;align-items:center;gap:1rem;padding:1.05rem 0 1.05rem 1.6rem;position:relative;}
+  .milestone-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent-glow);position:absolute;left:-6px;}
+  .milestone-dot.past{background:var(--text-dimmer);box-shadow:none;}
+  .milestone-info{flex:1;min-width:0;}
+  .milestone-name{font-size:1.03rem;font-weight:500;word-break:break-word;}
+  .milestone-date{font-family:var(--font-mono);font-size:.78rem;color:var(--text-dim);margin-top:.2rem;}
+  .milestone-remove{background:none;border:none;color:var(--text-dimmer);font-size:1.15rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;border-radius:50%;transition:all .2s;}
+  .milestone-remove:hover{color:var(--red);background:rgba(255,106,106,0.1);}
+
+  /* ============================= FINALE ============================= */
+  .finale{text-align:center;align-items:center;}
+  .finale h2{font-size:clamp(2.4rem,7vw,4.2rem);}
+  .finale-text{color:var(--text-dim);margin:1.2rem 0 2.4rem;font-size:1.08rem;}
+  .finale-quote{margin-top:2.4rem;font-family:var(--font-display);font-size:1.3rem;color:var(--accent);max-width:520px;opacity:0;transform:translateY(10px);min-height:1.6em;}
+  .finale-quote.show{animation:quoteIn .6s var(--ease) forwards;}
+  @keyframes quoteIn{to{opacity:1;transform:translateY(0);}}
+
+  footer{text-align:center;padding:3rem 1.5rem 4rem;color:var(--text-dimmer);font-size:.78rem;font-family:var(--font-mono);letter-spacing:.04em;display:flex;flex-direction:column;gap:.5rem;}
+
+  .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+</style>
+</head>
+<body>
+
+<noscript>UNTIL needs JavaScript to run. Please enable it in your browser.</noscript>
+
+<div class="progress-bar" id="progressBar"></div>
+<button class="reset-btn" id="resetBtn" type="button" title="Reset all data" aria-label="Reset all saved data">↺</button>
+<div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>
+
+<!-- 1. HERO -->
+<section class="section hero" id="hero">
+  <div class="hero-content">
+    <span class="eyebrow">TIME, VISUALIZED</span>
+    <h1 class="hero-title">UNTIL<span class="dot">.</span></h1>
+    <p class="hero-tagline">You don't have forever.</p>
+    <p class="hero-subtitle">Visualize the time you've lived, the time you may have left, and what you're doing with it.</p>
+    <button class="btn btn-primary" id="ctaStart" type="button">Calculate my time <span class="arrow">→</span></button>
+  </div>
+  <div class="scroll-hint" aria-hidden="true">
+    <span>SCROLL TO BEGIN</span>
+    <span>↓</span>
+  </div>
+</section>
+
+<!-- 2. SETUP -->
+<section class="section setup" id="setup">
+  <div class="setup-inner">
+    <span class="eyebrow">YOUR STARTING POINT</span>
+    <h2>Tell UNTIL about your time.</h2>
+    <div class="field">
+      <label for="birthDate">Date of birth</label>
+      <input type="date" id="birthDate" name="birthDate">
+    </div>
+    <div class="field">
+      <label for="lifeExpectancy">Estimated life expectancy — <span class="field-value" id="lifeExpectancyValue">80</span> years</label>
+      <input type="range" id="lifeExpectancy" name="lifeExpectancy" min="50" max="110" step="1" value="80">
+    </div>
+    <p class="disclaimer">This isn't a prediction of when you'll die — it's a visualization based on the life expectancy you choose. Change it any time and recalculate.</p>
+    <button class="btn btn-primary" id="ctaShow" type="button">Show my life <span class="arrow">→</span></button>
+    <p class="error-msg" id="setupError" hidden></p>
+  </div>
+</section>
+
+<!-- 3. YOUR LIFE -->
+<section class="section your-life" id="yourLife" hidden>
+  <div class="life-stat-main">
+    <span class="eyebrow">YOU ARE</span>
+    <div class="big-stat"><span id="ageYears">0</span><span class="unit">years</span>, <span id="ageMonths">0</span><span class="unit">months</span></div>
+  </div>
+  <div class="life-stat-main">
+    <span class="eyebrow">ESTIMATED TIME REMAINING</span>
+    <div class="big-stat"><span id="weeksRemainingNum">0</span><span class="unit">weeks</span></div>
+    <p class="basis-note">Based on an estimated life expectancy of <span id="basisLE">80</span> years — a perspective, not a prediction.</p>
+    <p class="surpassed-note" id="surpassedNote" hidden>You've already surpassed the estimate you chose. Every day now is extra time — feel free to raise the number above and recalculate.</p>
+  </div>
+  <div class="life-stat-grid">
+    <div class="stat-card"><span class="stat-label">Weeks lived</span><span class="stat-value" id="weeksLivedNum">0</span></div>
+    <div class="stat-card"><span class="stat-label">Days lived</span><span class="stat-value" id="daysLivedNum">0</span></div>
+    <div class="stat-card"><span class="stat-label">Years remaining</span><span class="stat-value"><span id="yearsRemainingNum">0</span><span class="stat-unit"> yrs</span></span></div>
+    <div class="stat-card"><span class="stat-label">Life elapsed</span><span class="stat-value" id="percentLivedNum">0%</span></div>
+  </div>
+</section>
+
+<!-- 4. LIFE IN WEEKS -->
+<section class="section weeks reveal" id="lifeInWeeks" hidden>
+  <span class="eyebrow">EVERY DOT = ONE WEEK</span>
+  <h2>Your life in weeks.</h2>
+  <p class="lede">Each row is a year. Each square, a week. Hover or tap a square to see when it falls.</p>
+  <div class="weeks-legend">
+    <div class="legend-item"><span class="legend-dot past"></span>Lived</div>
+    <div class="legend-item"><span class="legend-dot current"></span>This week</div>
+    <div class="legend-item"><span class="legend-dot future"></span>Ahead</div>
+  </div>
+  <div class="weeks-grid" id="weeksGrid"></div>
+</section>
+
+<!-- 5. WHERE DOES YOUR TIME GO -->
+<section class="section habits reveal" id="timeGoes" hidden>
+  <span class="eyebrow">WHERE DOES YOUR TIME GO?</span>
+  <h2>Small habits. Huge numbers.</h2>
+  <p class="lede">Tell UNTIL roughly how many hours a day you spend on the things that matter. It turns habits into years.</p>
+  <div class="habit-list" id="habitList"></div>
+  <div class="habit-actions">
+    <button class="btn btn-ghost" id="addHabit" type="button">+ Add activity</button>
+  </div>
+  <p class="habit-warning" id="habitWarning" hidden></p>
+  <div class="habit-chart" id="habitChart"></div>
+  <p class="chart-empty" id="habitChartEmpty" hidden>Add an activity above to see it turned into years.</p>
+</section>
+
+<!-- 6. WHAT IF -->
+<section class="section whatif reveal" id="whatIf" hidden>
+  <span class="eyebrow">WHAT IF?</span>
+  <h2>What if you gave your time back?</h2>
+  <p class="lede">Pick a habit above, and see what happens if you gave some of that time back to yourself, starting today.</p>
+  <div class="whatif-controls">
+    <label for="whatIfSelect" class="visually-hidden">Choose an activity</label>
+    <select id="whatIfSelect"></select>
+    <div class="whatif-current">Current: <span id="whatIfCurrent">—</span> hours/day</div>
+    <label for="whatIfTarget" class="visually-hidden">New target hours per day</label>
+    <input type="range" id="whatIfTarget" min="0" max="24" step="0.25" value="0">
+    <div class="whatif-target-label">New target: <span id="whatIfTargetValue">0</span> hours/day</div>
+    <p class="disclaimer" id="whatIfSleepNote" hidden style="margin:0.75rem 0 0;">UNTIL won't suggest sleeping less than 7 hours — losing sleep costs more than it gives back.</p>
+  </div>
+  <div class="whatif-result">
+    <div class="big-number" id="whatIfYears">0.0</div>
+    <div class="big-label">years gained</div>
+    <div class="sub-line" id="whatIfHours">Add an activity above to get started.</div>
+  </div>
+</section>
+
+<!-- 7. YOUR FUTURE -->
+<section class="section future reveal" id="yourFuture" hidden>
+  <span class="eyebrow">YOUR FUTURE</span>
+  <h2>Don't just count time. Give it somewhere to go.</h2>
+  <p class="lede">Add the milestones you're working toward. Watch them take their place on your timeline.</p>
+  <form class="milestone-form" id="milestoneForm">
+    <label for="milestoneName" class="visually-hidden">Milestone name</label>
+    <input type="text" id="milestoneName" placeholder="e.g. Travel to New York" aria-label="Milestone name">
+    <label for="milestoneDate" class="visually-hidden">Milestone date</label>
+    <input type="date" id="milestoneDate" aria-label="Milestone date">
+    <button class="btn btn-primary" type="submit">Add</button>
+  </form>
+  <div class="milestone-list" id="milestoneList"></div>
+</section>
+
+<!-- 8. MAKE TODAY COUNT -->
+<section class="section finale" id="finale" hidden>
+  <h2>Make today count.</h2>
+  <p class="finale-text">Your future is not a number. It's a collection of choices.</p>
+  <button class="btn btn-primary" id="ctaFinale" type="button">Make today count <span class="arrow">→</span></button>
+  <p class="finale-quote" id="finaleQuote"></p>
+</section>
+
+<footer>
+  <span>UNTIL — You don't have forever.</span>
+  <span>Your data stays on this device — the only outside request is for fonts (Google Fonts).</span>
+</footer>
+
+<script>
+(function(){
+  'use strict';
+
+  /* ============================= CONSTANTS ============================= */
+  var STORAGE_KEY = 'until_state_v1';
+  var DAY_MS = 24*60*60*1000;
+  var WEEK_MS = 7*DAY_MS;
+
+  var QUOTES = [
+    "You will never get this exact day back. Use it on purpose.",
+    "Do one thing today that your future self will thank you for.",
+    "The average week is just a square. Today, make yours count.",
+    "You can't add days to your life. But you can add life to your day.",
+    "Time isn't found. It's chosen.",
+    "Small. Deliberate. Today."
+  ];
+
+  var DEFAULT_STATE = {
+    birthDate: null,
+    lifeExpectancy: 80,
+    activities: [
+      { id:'a1', name:'Sleep', hours:8 },
+      { id:'a2', name:'Work / School', hours:8 },
+      { id:'a3', name:'Social Media', hours:2 }
+    ],
+    milestones: []
+  };
+
+  /* ============================= STATE ============================= */
+  function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return clone(DEFAULT_STATE);
+      var parsed = JSON.parse(raw);
+      var merged = clone(DEFAULT_STATE);
+      merged.birthDate = parsed.birthDate || null;
+      merged.lifeExpectancy = parsed.lifeExpectancy || 80;
+      merged.activities = Array.isArray(parsed.activities) ? parsed.activities : merged.activities;
+      merged.milestones = Array.isArray(parsed.milestones) ? parsed.milestones : merged.milestones;
+      return merged;
+    }catch(e){
+      return clone(DEFAULT_STATE);
+    }
+  }
+
+  function saveState(){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+    catch(e){ /* storage unavailable — fail silently, app still works this session */ }
+  }
+
+  var state = loadState();
+  var currentStats = null;
+
+  /* ============================= HELPERS ============================= */
+  function escapeHtml(str){
+    var div = document.createElement('div');
+    div.textContent = str == null ? '' : String(str);
+    return div.innerHTML;
+  }
+
+  function $(id){ return document.getElementById(id); }
+
+  function getAgeBreakdown(birth, now){
+    var years = now.getFullYear() - birth.getFullYear();
+    var months = now.getMonth() - birth.getMonth();
+    var days = now.getDate() - birth.getDate();
+    if(days < 0){
+      months -= 1;
+      var prevMonthLastDay = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+      days += prevMonthLastDay;
+    }
+    if(months < 0){
+      years -= 1;
+      months += 12;
+    }
+    return { years:years, months:months, days:days };
+  }
+
+  function computeLifeStats(birthDateStr, lifeExpectancy){
+    var now = new Date();
+    var birth = new Date(birthDateStr + 'T00:00:00');
+    var age = getAgeBreakdown(birth, now);
+    var daysLived = Math.max(0, Math.floor((now - birth)/DAY_MS));
+    var weeksLived = Math.floor(daysLived/7);
+    var totalWeeks = Math.round(lifeExpectancy*52);
+    var surpassed = weeksLived >= totalWeeks;
+    var weeksRemaining = Math.max(0, totalWeeks - weeksLived);
+    var preciseAgeYears = daysLived/365.25;
+    var remainingYears = Math.max(0, lifeExpectancy - preciseAgeYears);
+    var percentLived = Math.min(100, (weeksLived/totalWeeks)*100);
+    return {
+      now:now, birth:birth, age:age, daysLived:daysLived, weeksLived:weeksLived,
+      totalWeeks:totalWeeks, weeksRemaining:weeksRemaining, preciseAgeYears:preciseAgeYears,
+      remainingYears:remainingYears, percentLived:percentLived, surpassed:surpassed
+    };
+  }
+
+  function animateNumber(el, target, opts){
+    opts = opts || {};
+    var duration = opts.duration || 1100;
+    var decimals = opts.decimals != null ? opts.decimals : 0;
+    var prefix = opts.prefix || '';
+    var suffix = opts.suffix || '';
+    var formatter = opts.formatter;
+    var startTime = null;
+
+    function render(value){
+      if(formatter) return formatter(value);
+      return prefix + value.toFixed(decimals) + suffix;
+    }
+
+    function tick(now){
+      if(startTime === null) startTime = now;
+      var progress = Math.min((now-startTime)/duration, 1);
+      var eased = 1 - Math.pow(1-progress, 3);
+      var value = target*eased;
+      el.textContent = render(value);
+      if(progress < 1) requestAnimationFrame(tick);
+      else el.textContent = render(target);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  function fmtInt(v){ return Math.round(v).toLocaleString('en-US'); }
+
+  /* ============================= RENDER: YOUR LIFE ============================= */
+  function renderYourLife(stats){
+    $('ageYears').textContent = stats.age.years;
+    $('ageMonths').textContent = stats.age.months;
+    $('basisLE').textContent = state.lifeExpectancy;
+
+    animateNumber($('weeksRemainingNum'), stats.weeksRemaining, { formatter:fmtInt });
+    animateNumber($('weeksLivedNum'), stats.weeksLived, { formatter:fmtInt });
+    $('daysLivedNum').textContent = fmtInt(stats.daysLived);
+    animateNumber($('yearsRemainingNum'), stats.remainingYears, { decimals:1 });
+    animateNumber($('percentLivedNum'), stats.percentLived, { decimals:1, suffix:'%' });
+
+    $('surpassedNote').hidden = !stats.surpassed;
+  }
+
+  /* ============================= RENDER: WEEKS GRID ============================= */
+  function renderWeeksGrid(stats){
+    var grid = $('weeksGrid');
+    grid.innerHTML = '';
+    var frag = document.createDocumentFragment();
+    var total = stats.totalWeeks;
+    var current = stats.weeksLived;
+
+    for(var i=0;i<total;i++){
+      var div = document.createElement('div');
+      var cls;
+      if(stats.surpassed) cls = 'past';
+      else if(i < current) cls = 'past';
+      else if(i === current) cls = 'current';
+      else cls = 'future';
+      div.className = 'week-dot ' + cls;
+      div.dataset.week = i;
+      frag.appendChild(div);
+    }
+    grid.appendChild(frag);
+  }
+
+  function weekTooltipText(weekIndex){
+    var d = new Date(currentStats.birth.getTime() + weekIndex*WEEK_MS);
+    var ageAtWeek = (weekIndex/52).toFixed(1);
+    var dateStr = d.toLocaleDateString('en-US', { month:'short', year:'numeric' });
+    return 'Week ' + (weekIndex+1) + ' · ' + dateStr + ' · age ' + ageAtWeek;
+  }
+
+  function setupTooltip(){
+    var tooltip = $('tooltip');
+    var grid = $('weeksGrid');
+    var hideTimer = null;
+
+    grid.addEventListener('mousemove', function(e){
+      var target = e.target.closest ? e.target.closest('.week-dot') : null;
+      if(!target || !currentStats){ tooltip.style.opacity = 0; return; }
+      var weekIndex = parseInt(target.dataset.week, 10);
+      tooltip.textContent = weekTooltipText(weekIndex);
+      tooltip.style.opacity = 1;
+      tooltip.style.left = e.clientX + 'px';
+      tooltip.style.top = e.clientY + 'px';
+    });
+    grid.addEventListener('mouseleave', function(){ tooltip.style.opacity = 0; });
+
+    grid.addEventListener('click', function(e){
+      var target = e.target.closest ? e.target.closest('.week-dot') : null;
+      if(!target || !currentStats) return;
+      var rect = target.getBoundingClientRect();
+      var weekIndex = parseInt(target.dataset.week, 10);
+      tooltip.textContent = weekTooltipText(weekIndex);
+      tooltip.style.left = (rect.left + rect.width/2) + 'px';
+      tooltip.style.top = rect.top + 'px';
+      tooltip.style.opacity = 1;
+      clearTimeout(hideTimer);
+      hideTimer = setTimeout(function(){ tooltip.style.opacity = 0; }, 2200);
+    });
+  }
+
+  /* ============================= RENDER: HABITS ============================= */
+  function renderHabits(){
+    var list = $('habitList');
+    list.innerHTML = '';
+    state.activities.forEach(function(act){
+      var row = document.createElement('div');
+      row.className = 'habit-row';
+      row.innerHTML =
+        '<input type="text" class="habit-name" value="'+escapeHtml(act.name)+'" placeholder="Activity name" data-id="'+act.id+'" aria-label="Activity name">' +
+        '<div class="habit-hours-wrap">' +
+          '<input type="number" class="habit-hours" value="'+act.hours+'" min="0" max="24" step="0.25" data-id="'+act.id+'" aria-label="Hours per day">' +
+          '<span class="habit-unit">h/day</span>' +
+        '</div>' +
+        '<button class="habit-remove" type="button" data-id="'+act.id+'" aria-label="Remove activity">×</button>';
+      list.appendChild(row);
+    });
+    renderHabitChart();
+    renderWhatIfOptions();
+    checkHabitTotal();
+  }
+
+  function renderHabitChart(){
+    var chart = $('habitChart');
+    var empty = $('habitChartEmpty');
+    chart.innerHTML = '';
+    var le = state.lifeExpectancy;
+    var items = state.activities
+      .filter(function(a){ return a.name && a.name.trim(); })
+      .map(function(a){ return { name:a.name, hours:a.hours, years:(a.hours/24)*le }; })
+      .sort(function(a,b){ return b.years - a.years; });
+
+    empty.hidden = items.length > 0;
+    if(items.length === 0) return;
+
+    var max = Math.max.apply(null, items.map(function(i){ return i.years; }).concat([1]));
+
+    items.forEach(function(item){
+      var row = document.createElement('div');
+      row.className = 'chart-row';
+      var pct = Math.min(100, (item.years/max)*100);
+      row.innerHTML =
+        '<div class="chart-label">'+escapeHtml(item.name)+'</div>' +
+        '<div class="chart-track"><div class="chart-fill"></div></div>' +
+        '<div class="chart-value">'+item.years.toFixed(1)+' yrs</div>';
+      chart.appendChild(row);
+      var fill = row.querySelector('.chart-fill');
+      requestAnimationFrame(function(){ fill.style.width = pct + '%'; });
+    });
+  }
+
+  function checkHabitTotal(){
+    var total = state.activities.reduce(function(s,a){ return s + (parseFloat(a.hours)||0); }, 0);
+    var warn = $('habitWarning');
+    if(total > 24){
+      warn.hidden = false;
+      warn.textContent = "That's " + total.toFixed(1) + " hours a day — a bit more than 24. Try adjusting the numbers.";
+    } else {
+      warn.hidden = true;
+    }
+  }
+
+  /* ============================= WHAT IF ============================= */
+  function renderWhatIfOptions(){
+    var select = $('whatIfSelect');
+    var prevValue = select.value;
+    select.innerHTML = '';
+    var named = state.activities.filter(function(a){ return a.name && a.name.trim(); });
+
+    named.forEach(function(a){
+      var opt = document.createElement('option');
+      opt.value = a.id;
+      opt.textContent = a.name;
+      select.appendChild(opt);
+    });
+
+    if(named.some(function(a){ return a.id === prevValue; })){
+      select.value = prevValue;
+    }
+    updateWhatIf();
+  }
+
+  var SLEEP_FLOOR_HOURS = 7;
+  function isSleepActivity(name){ return /sleep/i.test(name || ''); }
+
+  function updateWhatIf(){
+    var select = $('whatIfSelect');
+    var act = state.activities.find(function(a){ return a.id === select.value; });
+    var targetSlider = $('whatIfTarget');
+    var currentLabel = $('whatIfCurrent');
+    var yearsEl = $('whatIfYears');
+    var hoursEl = $('whatIfHours');
+    var sleepNote = $('whatIfSleepNote');
+
+    if(!act){
+      currentLabel.textContent = '—';
+      targetSlider.value = 0;
+      $('whatIfTargetValue').textContent = '0';
+      yearsEl.textContent = '0.0';
+      hoursEl.textContent = 'Add an activity above to get started.';
+      if(sleepNote) sleepNote.hidden = true;
+      return;
+    }
+
+    currentLabel.textContent = Number(act.hours).toFixed(2);
+
+    var sleepFloor = isSleepActivity(act.name) ? Math.min(SLEEP_FLOOR_HOURS, act.hours) : 0;
+    targetSlider.min = sleepFloor;
+    targetSlider.max = act.hours;
+    if(sleepNote) sleepNote.hidden = !isSleepActivity(act.name);
+
+    var needsReset = targetSlider.dataset.actId !== act.id || parseFloat(targetSlider.value) > act.hours || parseFloat(targetSlider.value) < sleepFloor;
+    if(needsReset){
+      targetSlider.value = Math.max(sleepFloor, act.hours/2);
+      targetSlider.dataset.actId = act.id;
+    }
+
+    var target = parseFloat(targetSlider.value) || 0;
+    if(target < sleepFloor) target = sleepFloor;
+    $('whatIfTargetValue').textContent = target.toFixed(2);
+
+    var savedPerDay = Math.max(0, act.hours - target);
+    var remainingYears = currentStats ? currentStats.remainingYears : 0;
+    var yearsGained = (savedPerDay/24) * remainingYears;
+    var hoursGained = savedPerDay * 365.25 * remainingYears;
+
+    animateNumber(yearsEl, yearsGained, { decimals:1, duration:700 });
+    hoursEl.textContent = 'That\u2019s approximately ' + fmtInt(hoursGained) + ' hours recovered.';
+  }
+
+  /* ============================= MILESTONES ============================= */
+  function renderMilestones(){
+    var list = $('milestoneList');
+    list.innerHTML = '';
+
+    if(state.milestones.length === 0){
+      var empty = document.createElement('p');
+      empty.className = 'milestone-empty';
+      empty.textContent = 'No milestones yet. Add your first one above.';
+      list.appendChild(empty);
+      return;
+    }
+
+    var sorted = state.milestones.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+    var now = new Date();
+
+    sorted.forEach(function(m){
+      var d = new Date(m.date + 'T00:00:00');
+      var isPast = d < now;
+      var dateStr = d.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+      var item = document.createElement('div');
+      item.className = 'milestone-item';
+      item.innerHTML =
+        '<span class="milestone-dot '+(isPast?'past':'')+'"></span>' +
+        '<div class="milestone-info">' +
+          '<div class="milestone-name">'+escapeHtml(m.name)+'</div>' +
+          '<div class="milestone-date">'+dateStr+(isPast?' · passed':'')+'</div>' +
+        '</div>' +
+        '<button class="milestone-remove" type="button" data-id="'+m.id+'" aria-label="Remove milestone">×</button>';
+      list.appendChild(item);
+    });
+  }
+
+  /* ============================= REVEAL / FLOW ============================= */
+  var revealObserver = new IntersectionObserver(function(entries){
+    entries.forEach(function(entry){
+      if(entry.isIntersecting){
+        entry.target.classList.add('is-visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold:0.12 });
+
+  var GATED_IDS = ['yourLife','lifeInWeeks','timeGoes','whatIf','yourFuture','finale'];
+
+  function revealResults(scrollTo){
+    currentStats = computeLifeStats(state.birthDate, state.lifeExpectancy);
+
+    renderYourLife(currentStats);
+    renderWeeksGrid(currentStats);
+    renderHabits();
+    renderMilestones();
+
+    GATED_IDS.forEach(function(id){ $(id).hidden = false; });
+
+    $('yourLife').classList.add('is-visible');
+    ['lifeInWeeks','timeGoes','whatIf','yourFuture','finale'].forEach(function(id){
+      revealObserver.observe($(id));
+    });
+
+    if(scrollTo){
+      $('yourLife').scrollIntoView({ behavior:'smooth', block:'start' });
+    }
+  }
+
+  function showError(msg){
+    var el = $('setupError');
+    el.textContent = msg;
+    el.hidden = false;
+  }
+
+  function handleShowLife(){
+    var birthInput = $('birthDate');
+    var leInput = $('lifeExpectancy');
+    var errorEl = $('setupError');
+    var birthVal = birthInput.value;
+    var le = parseInt(leInput.value, 10);
+
+    if(!birthVal){ showError('Please enter your date of birth.'); return; }
+
+    var birth = new Date(birthVal + 'T00:00:00');
+    var now = new Date();
+    if(isNaN(birth.getTime())){ showError('That date looks invalid.'); return; }
+    if(birth > now){ showError("That date hasn't happened yet."); return; }
+    var ageYearsCheck = (now - birth) / (365.25*DAY_MS);
+    if(ageYearsCheck > 130){ showError('Please double check the date of birth.'); return; }
+
+    errorEl.hidden = true;
+    state.birthDate = birthVal;
+    state.lifeExpectancy = le;
+    saveState();
+
+    revealResults(true);
+  }
+
+  /* ============================= EVENTS ============================= */
+  function bindEvents(){
+    $('ctaStart').addEventListener('click', function(){
+      $('setup').scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+
+    $('ctaShow').addEventListener('click', handleShowLife);
+
+    $('lifeExpectancy').addEventListener('input', function(e){
+      $('lifeExpectancyValue').textContent = e.target.value;
+    });
+
+    setupTooltip();
+
+    $('habitList').addEventListener('input', function(e){
+      var id = e.target.dataset.id;
+      if(!id) return;
+      var act = state.activities.find(function(a){ return a.id === id; });
+      if(!act) return;
+      if(e.target.classList.contains('habit-name')) act.name = e.target.value;
+      if(e.target.classList.contains('habit-hours')) act.hours = parseFloat(e.target.value) || 0;
+      saveState();
+      renderHabitChart();
+      renderWhatIfOptions();
+      checkHabitTotal();
+    });
+
+    $('habitList').addEventListener('click', function(e){
+      if(e.target.classList.contains('habit-remove')){
+        var id = e.target.dataset.id;
+        state.activities = state.activities.filter(function(a){ return a.id !== id; });
+        saveState();
+        renderHabits();
+      }
+    });
+
+    $('addHabit').addEventListener('click', function(){
+      var id = 'a' + Date.now();
+      state.activities.push({ id:id, name:'', hours:1 });
+      saveState();
+      renderHabits();
+      var inputs = document.querySelectorAll('.habit-name');
+      var last = inputs[inputs.length-1];
+      if(last) last.focus();
+    });
+
+    $('whatIfSelect').addEventListener('change', updateWhatIf);
+    $('whatIfTarget').addEventListener('input', updateWhatIf);
+
+    $('milestoneForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var nameInput = $('milestoneName');
+      var dateInput = $('milestoneDate');
+      var name = nameInput.value.trim();
+      var date = dateInput.value;
+      if(!name || !date) return;
+      state.milestones.push({ id:'m'+Date.now(), name:name, date:date });
+      saveState();
+      renderMilestones();
+      nameInput.value = '';
+      dateInput.value = '';
+      nameInput.focus();
+    });
+
+    $('milestoneList').addEventListener('click', function(e){
+      if(e.target.classList.contains('milestone-remove')){
+        var id = e.target.dataset.id;
+        state.milestones = state.milestones.filter(function(m){ return m.id !== id; });
+        saveState();
+        renderMilestones();
+      }
+    });
+
+    $('ctaFinale').addEventListener('click', function(){
+      var q = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+      var el = $('finaleQuote');
+      el.classList.remove('show');
+      void el.offsetWidth;
+      el.textContent = q;
+      el.classList.add('show');
+    });
+
+    $('resetBtn').addEventListener('click', function(){
+      if(confirm('Erase all your UNTIL data? This can\u2019t be undone.')){
+        localStorage.removeItem(STORAGE_KEY);
+        location.reload();
+      }
+    });
+  }
+
+  function setupScrollProgress(){
+    var bar = $('progressBar');
+    window.addEventListener('scroll', function(){
+      var scrollTop = window.scrollY;
+      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      var pct = docHeight > 0 ? (scrollTop/docHeight)*100 : 0;
+      bar.style.width = pct + '%';
+    }, { passive:true });
+  }
+
+  /* ============================= INIT ============================= */
+  function init(){
+    var todayStr = new Date().toISOString().slice(0,10);
+    var minDate = new Date();
+    minDate.setFullYear(minDate.getFullYear() - 130);
+    $('birthDate').max = todayStr;
+    $('birthDate').min = minDate.toISOString().slice(0,10);
+
+    $('lifeExpectancy').value = state.lifeExpectancy;
+    $('lifeExpectancyValue').textContent = state.lifeExpectancy;
+    if(state.birthDate) $('birthDate').value = state.birthDate;
+
+    bindEvents();
+    setupScrollProgress();
+
+    if(state.birthDate){
+      revealResults(false);
+    }
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+})();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('service-worker.js').catch(function(){ /* offline support unavailable, app still works online */ });
+  });
+}
+</script>
+</body>
+</html>

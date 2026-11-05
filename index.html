@@ -1,8 +1,22 @@
 <!DOCTYPE html>
+<!--
+  UNTIL — You don't have forever.
+  © 2026 Abejit. All rights reserved. See README.md.
+
+  A single-file web app: markup, styles and script all live in this document.
+  The only external resource is Google Fonts. No user data is ever sent anywhere.
+-->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<!--
+  Content Security Policy: the page may only run its own inline script, load
+  styles and fonts from Google Fonts, and make no other network requests.
+  With no server this is defence in depth: even injected markup couldn't
+  load outside code or send data anywhere.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com; manifest-src 'self'; worker-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'">
 <meta name="color-scheme" content="dark only">
 <meta name="theme-color" content="#070707">
 <title>UNTIL — You don't have forever.</title>
@@ -24,7 +38,16 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
-  /* ============================= TOKENS ============================= */
+  /* =============================================================
+     TOKENS
+     Every color, font, and easing curve used anywhere below is
+     defined once here as a CSS custom property, then referenced
+     via var(--name) everywhere else — never hardcoded a second
+     time. That's what makes it possible to re-theme the entire
+     site (as happened during design iteration) by editing this
+     one block, instead of hunting for every hex code in a
+     1,000+ line stylesheet.
+     ============================================================= */
   :root{
     color-scheme:dark only;
     --bg:#070707;
@@ -78,7 +101,7 @@
   .progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:var(--accent);z-index:999;box-shadow:0 0 10px var(--accent-glow);}
 
   .reset-btn{
-    position:fixed;bottom:20px;left:20px;width:42px;height:42px;border-radius:50%;
+    position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:20px;width:42px;height:42px;border-radius:50%;
     background:rgba(244,244,240,0.03);border:1px solid var(--border);color:var(--text-dimmer);
     font-size:1.05rem;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;
     transition:all .35s var(--ease);backdrop-filter:blur(8px);
@@ -198,11 +221,12 @@
 
   /* ============================= HABITS ============================= */
   .habit-list{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.3rem;}
-  .habit-row{display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;background:var(--bg-card);border:1px solid var(--border);padding:.7rem 1rem;border-radius:12px;}
-  .habit-name{flex:1 1 140px;min-width:100px;background:transparent;border:none;padding:.3rem 0;}
-  .habit-name:focus{outline:none;}
+  .habit-row{display:flex;align-items:center;gap:.6rem;background:var(--bg-card);border:1px solid var(--border);padding:.7rem 1rem;border-radius:12px;}
+  /* Scoped as `.habit-row input.…` so these win over the generic input[type=…] field styles above. */
+  .habit-row input.habit-name{flex:1 1 auto;min-width:0;width:auto;background:transparent;border:none;padding:.3rem 0;}
+  .habit-row input.habit-name:focus{outline:none;}
   .habit-hours-wrap{display:flex;align-items:center;gap:.5rem;flex-shrink:0;}
-  .habit-hours{width:68px;background:rgba(244,244,240,0.03);border:1px solid var(--border);border-radius:8px;padding:.4rem .5rem;font-family:var(--font-mono);text-align:center;font-size:.92rem;}
+  .habit-row input.habit-hours{width:72px;background:rgba(244,244,240,0.03);border:1px solid var(--border);border-radius:8px;padding:.4rem .5rem;font-family:var(--font-mono);text-align:center;font-size:1rem;} /* 16px: smaller text makes iOS zoom the page on focus */
   .habit-unit{font-size:.74rem;color:var(--text-dimmer);}
   .habit-remove{background:none;border:none;color:var(--text-dimmer);font-size:1.15rem;cursor:pointer;width:30px;height:30px;border-radius:50%;transition:all .2s;flex-shrink:0;}
   .habit-remove:hover{color:var(--red);background:rgba(255,106,106,0.1);}
@@ -250,7 +274,7 @@
   .finale-quote.show{animation:quoteIn .6s var(--ease) forwards;}
   @keyframes quoteIn{to{opacity:1;transform:translateY(0);}}
 
-  footer{text-align:center;padding:3rem 1.5rem 4rem;color:var(--text-dimmer);font-size:.78rem;font-family:var(--font-mono);letter-spacing:.04em;display:flex;flex-direction:column;gap:.5rem;}
+  footer{text-align:center;padding:3rem 1.5rem calc(5rem + env(safe-area-inset-bottom));color:var(--text-dimmer);font-size:.78rem;font-family:var(--font-mono);letter-spacing:.04em;display:flex;flex-direction:column;gap:.5rem;}
 
   .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
 </style>
@@ -327,7 +351,7 @@
     <div class="legend-item"><span class="legend-dot current"></span>This week</div>
     <div class="legend-item"><span class="legend-dot future"></span>Ahead</div>
   </div>
-  <div class="weeks-grid" id="weeksGrid"></div>
+  <div class="weeks-grid" id="weeksGrid" role="img" aria-label="Grid of the weeks of your life"></div>
 </section>
 
 <!-- 5. WHERE DOES YOUR TIME GO -->
@@ -372,9 +396,9 @@
   <p class="lede">Add the milestones you're working toward. Watch them take their place on your timeline.</p>
   <form class="milestone-form" id="milestoneForm">
     <label for="milestoneName" class="visually-hidden">Milestone name</label>
-    <input type="text" id="milestoneName" placeholder="e.g. Travel to New York" aria-label="Milestone name">
+    <input type="text" id="milestoneName" placeholder="e.g. Travel to New York" maxlength="80">
     <label for="milestoneDate" class="visually-hidden">Milestone date</label>
-    <input type="date" id="milestoneDate" aria-label="Milestone date">
+    <input type="date" id="milestoneDate">
     <button class="btn btn-primary" type="submit">Add</button>
   </form>
   <div class="milestone-list" id="milestoneList"></div>
@@ -394,13 +418,35 @@
 </footer>
 
 <script>
+/**
+ * UNTIL — a single-file, dependency-free time visualization.
+ *
+ * Architecture
+ * ------------
+ * - Everything lives in this one HTML file: markup, styles, and this script.
+ *   No build step, no framework, no backend — the file works by itself.
+ * - All user data (birth date, life expectancy, habits, milestones) lives in
+ *   one `state` object, persisted to localStorage after every change.
+ * - Rendering is one-directional: render functions read from `state` and
+ *   rebuild the relevant DOM; nothing keeps its own separate copy of data.
+ *   That keeps the UI and the saved data from ever drifting apart.
+ * - Code below is grouped by responsibility, in this order: constants/state,
+ *   pure helper functions, one render function per UI section, event
+ *   wiring, then init.
+ * - Syntax intentionally targets older/evergreen browsers (var, function
+ *   expressions) rather than the newest ES features, since there's no
+ *   build step to transpile or polyfill anything.
+ */
 (function(){
   'use strict';
 
   /* ============================= CONSTANTS ============================= */
   var STORAGE_KEY = 'until_state_v1';
   var DAY_MS = 24*60*60*1000;
-  var WEEK_MS = 7*DAY_MS;
+  var WEEKS_PER_ROW = 52;          // one row of the grid = one year of life
+
+  /** Limits applied to everything the user can type, so no field can break the maths or the layout. */
+  var LIMITS = { lifeExpectancy:[50, 110], hours:[0, 24], nameLength:60, milestoneLength:80, activities:30, milestones:100, maxAge:130 };
 
   var QUOTES = [
     "You will never get this exact day back. Use it on purpose.",
@@ -423,24 +469,94 @@
   };
 
   /* ============================= STATE ============================= */
+
+  /**
+   * Deep-clones a plain data object via a JSON round-trip. Only safe for
+   * data that survives JSON (no functions, Dates, undefined, etc.) — which
+   * is exactly what DEFAULT_STATE is, so this is a deliberate, cheap
+   * alternative to structuredClone() (used instead of it for wider browser
+   * support, since this app ships with no polyfills at all).
+   * @param {object} obj
+   * @returns {object} a fully independent copy of obj
+   */
   function clone(obj){ return JSON.parse(JSON.stringify(obj)); }
 
-  function loadState(){
-    try{
-      var raw = localStorage.getItem(STORAGE_KEY);
-      if(!raw) return clone(DEFAULT_STATE);
-      var parsed = JSON.parse(raw);
-      var merged = clone(DEFAULT_STATE);
-      merged.birthDate = parsed.birthDate || null;
-      merged.lifeExpectancy = parsed.lifeExpectancy || 80;
-      merged.activities = Array.isArray(parsed.activities) ? parsed.activities : merged.activities;
-      merged.milestones = Array.isArray(parsed.milestones) ? parsed.milestones : merged.milestones;
-      return merged;
-    }catch(e){
-      return clone(DEFAULT_STATE);
-    }
+  /**
+   * Parses a value as a finite number and clamps it to [min, max]; anything
+   * unreadable becomes `fallback`. Used on every number typed by the user or
+   * read from storage, so negative hours or "NaN" never reach the maths.
+   * @param {*} value
+   * @param {number} min
+   * @param {number} max
+   * @param {number} fallback
+   * @returns {number}
+   */
+  function num(value, min, max, fallback){
+    var n = parseFloat(value);
+    if(!isFinite(n)) return fallback;
+    return Math.min(max, Math.max(min, n));
   }
 
+  /**
+   * A short id that stays unique even if two items are created in the same
+   * millisecond (timestamp plus a random suffix).
+   * @param {string} prefix
+   * @returns {string}
+   */
+  function uid(prefix){ return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+  /** True for a real calendar date written as YYYY-MM-DD (rejects things like 2023-02-31). */
+  function isIsoDate(str){
+    if(typeof str !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(str)) return false;
+    var d = parseIsoDate(str);
+    return d.getFullYear() === +str.slice(0, 4) && d.getMonth() === +str.slice(5, 7) - 1 && d.getDate() === +str.slice(8, 10);
+  }
+
+  /**
+   * Reads saved state from localStorage and rebuilds it field by field on
+   * top of DEFAULT_STATE, validating every value instead of trusting the
+   * stored object wholesale. That matters for three reasons:
+   * (1) if a future version adds a new state field, a visitor with old saved
+   *     data still gets a sane default for it instead of `undefined`;
+   * (2) if localStorage holds malformed JSON (corrupted, or edited by hand),
+   *     JSON.parse throws, we land in the catch block, and the app boots
+   *     with defaults instead of crashing;
+   * (3) stored text and ids end up inside HTML, so only clean values are
+   *     kept — a tampered entry can't inject markup or break the layout.
+   * @returns {object} the app's working state
+   */
+  function loadState(){
+    var s = clone(DEFAULT_STATE);
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return s;
+      var p = JSON.parse(raw) || {};
+      if(isIsoDate(p.birthDate) && p.birthDate <= todayIso()) s.birthDate = p.birthDate;
+      s.lifeExpectancy = Math.round(num(p.lifeExpectancy, LIMITS.lifeExpectancy[0], LIMITS.lifeExpectancy[1], 80));
+      var safeId = function(id, prefix){ return (typeof id === 'string' && /^[\w-]{1,40}$/.test(id)) ? id : uid(prefix); };
+      if(Array.isArray(p.activities)){
+        s.activities = p.activities.filter(function(a){ return a && typeof a === 'object'; }).slice(0, LIMITS.activities).map(function(a){
+          return { id:safeId(a.id, 'a'), name:String(a.name == null ? '' : a.name).slice(0, LIMITS.nameLength), hours:num(a.hours, LIMITS.hours[0], LIMITS.hours[1], 0) };
+        });
+      }
+      if(Array.isArray(p.milestones)){
+        s.milestones = p.milestones.filter(function(m){ return m && typeof m.name === 'string' && m.name.trim() && isIsoDate(m.date); })
+          .slice(0, LIMITS.milestones).map(function(m){
+            return { id:safeId(m.id, 'm'), name:m.name.slice(0, LIMITS.milestoneLength), date:m.date };
+          });
+      }
+    }catch(e){ /* unreadable data: start from defaults rather than crash */ }
+    return s;
+  }
+
+  /**
+   * Persists the current in-memory `state` to localStorage. Wrapped in
+   * try/catch because localStorage.setItem can throw — most commonly in
+   * Safari private browsing (where localStorage exists but is read-only
+   * with a 0-byte quota) or when a user has genuinely filled their quota.
+   * Either way, failing to save shouldn't crash the app; the user just
+   * keeps working for the rest of this session without persistence.
+   */
   function saveState(){
     try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
     catch(e){ /* storage unavailable — fail silently, app still works this session */ }
@@ -450,14 +566,80 @@
   var currentStats = null;
 
   /* ============================= HELPERS ============================= */
-  function escapeHtml(str){
-    var div = document.createElement('div');
-    div.textContent = str == null ? '' : String(str);
-    return div.innerHTML;
+
+  /**
+   * Escapes text for safe insertion into HTML — both element content AND
+   * attribute values. All five significant characters are replaced, quotes
+   * included: activity names are written into `value="…"` attributes, and
+   * an unescaped `"` there would let a name like `" onfocus="…` close the
+   * attribute and add its own code. (The common shortcut of setting
+   * textContent and reading innerHTML back does NOT escape quotes, which is
+   * exactly why it isn't used here.)
+   * @param {*} value - value to escape (non-strings are coerced first).
+   * @returns {string} HTML-safe text.
+   */
+  function escapeHtml(value){
+    return String(value == null ? '' : value)
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
+  /** Shorthand for document.getElementById — used dozens of times below. */
   function $(id){ return document.getElementById(id); }
 
+  /**
+   * Turns 'YYYY-MM-DD' into a Date at local midnight. Done by hand because
+   * `new Date('YYYY-MM-DD')` is parsed as UTC midnight, which in time zones
+   * west of Greenwich is still the previous day locally.
+   * @param {string} iso
+   * @returns {Date}
+   */
+  function parseIsoDate(iso){
+    return new Date(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10));
+  }
+
+  /** Today's date as 'YYYY-MM-DD' in the user's own time zone. */
+  function todayIso(){
+    var d = new Date();
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+  }
+
+  /**
+   * Whole calendar days between two dates. Each date is converted to UTC
+   * from its local year/month/day first, so a daylight-saving change (a
+   * "day" of 23 or 25 hours) can never make the count off by one.
+   * @param {Date} a
+   * @param {Date} b
+   * @returns {number} b − a, in days
+   */
+  function daysBetween(a, b){
+    return Math.round((Date.UTC(b.getFullYear(), b.getMonth(), b.getDate()) - Date.UTC(a.getFullYear(), a.getMonth(), a.getDate())) / DAY_MS);
+  }
+
+  /**
+   * The same calendar date `years` later — a birthday. 29 February falls
+   * back to 28 February in non-leap years instead of rolling into March.
+   * @param {Date} date
+   * @param {number} years
+   * @returns {Date}
+   */
+  function addYears(date, years){
+    var y = date.getFullYear() + years, m = date.getMonth();
+    var lastDay = new Date(y, m + 1, 0).getDate();
+    return new Date(y, m, Math.min(date.getDate(), lastDay));
+  }
+
+  /**
+   * Calendar-accurate age breakdown (years/months/days) between two dates.
+   * Deliberately not a division of the millisecond difference by an average
+   * month length — that drifts. This walks the actual calendar fields, the
+   * same way you'd count on your fingers: subtract years, then months, then
+   * borrow a month's worth of days if `now`'s day-of-month comes before
+   * `birth`'s.
+   * @param {Date} birth
+   * @param {Date} now
+   * @returns {{years:number, months:number, days:number}}
+   */
   function getAgeBreakdown(birth, now){
     var years = now.getFullYear() - birth.getFullYear();
     var months = now.getMonth() - birth.getMonth();
@@ -474,54 +656,101 @@
     return { years:years, months:months, days:days };
   }
 
+  /**
+   * The single source of truth for every number the site shows: age, weeks
+   * lived/remaining, and percentage of the chosen lifespan elapsed.
+   * Every other render function consumes this object rather than
+   * recomputing dates itself, so the grid, the stat cards, and the What-If
+   * section can never disagree with each other.
+   *
+   * Two different notions of "week" are used on purpose:
+   *  - The headline numbers (weeks lived, weeks remaining) are real
+   *    7-day weeks between real dates: birth → today → the day you turn
+   *    your chosen life expectancy.
+   *  - The grid is laid out as exactly 52 squares per row, one row per
+   *    year of age, so a row always means "a year". The current square is
+   *    therefore placed by age: row = completed years, column = weeks
+   *    since your last birthday (capped at 51, because a year is 52 weeks
+   *    and one or two days). Placing it by "total days ÷ 7" instead would
+   *    drift about one square every 5–6 years, since a real year is
+   *    slightly longer than 52 weeks.
+   *
+   * @param {string} birthDateStr - ISO date string (YYYY-MM-DD) from the input.
+   * @param {number} lifeExpectancy - chosen life expectancy, in years.
+   * @returns {object} stats — see individual fields inline below.
+   */
   function computeLifeStats(birthDateStr, lifeExpectancy){
     var now = new Date();
-    var birth = new Date(birthDateStr + 'T00:00:00');
+    var birth = parseIsoDate(birthDateStr);
+    var end = addYears(birth, lifeExpectancy);              // the day you turn your chosen life expectancy
     var age = getAgeBreakdown(birth, now);
-    var daysLived = Math.max(0, Math.floor((now - birth)/DAY_MS));
-    var weeksLived = Math.floor(daysLived/7);
-    var totalWeeks = Math.round(lifeExpectancy*52);
-    var surpassed = weeksLived >= totalWeeks;
-    var weeksRemaining = Math.max(0, totalWeeks - weeksLived);
-    var preciseAgeYears = daysLived/365.25;
-    var remainingYears = Math.max(0, lifeExpectancy - preciseAgeYears);
-    var percentLived = Math.min(100, (weeksLived/totalWeeks)*100);
+    var daysLived = Math.max(0, daysBetween(birth, now));
+    var daysRemaining = Math.max(0, daysBetween(now, end));
+    var totalDays = Math.max(1, daysBetween(birth, end));
+    var surpassed = daysRemaining === 0;
+
+    var lastBirthday = addYears(birth, age.years);
+    var weekInYear = Math.min(WEEKS_PER_ROW - 1, Math.floor(daysBetween(lastBirthday, now) / 7));
     return {
-      now:now, birth:birth, age:age, daysLived:daysLived, weeksLived:weeksLived,
-      totalWeeks:totalWeeks, weeksRemaining:weeksRemaining, preciseAgeYears:preciseAgeYears,
-      remainingYears:remainingYears, percentLived:percentLived, surpassed:surpassed
+      now:now, birth:birth, age:age,
+      daysLived:daysLived,
+      weeksLived:Math.floor(daysLived / 7),
+      weeksRemaining:Math.floor(daysRemaining / 7),
+      remainingYears:daysRemaining / 365.25,
+      percentLived:Math.min(100, daysLived / totalDays * 100),
+      surpassed:surpassed,
+      totalWeeks:lifeExpectancy * WEEKS_PER_ROW,            // squares in the grid
+      currentWeekIndex:age.years * WEEKS_PER_ROW + weekInYear  // the square for this week
     };
   }
 
+  /**
+   * Animates a number inside `el` from the value it currently shows to
+   * `target`, using requestAnimationFrame rather than setInterval so it
+   * stays in sync with the browser's repaint cycle (no jank, pauses on a
+   * backgrounded tab). Eased with cubic ease-out so it settles rather than
+   * stopping abruptly. The last value is remembered on the element, so
+   * dragging the What-If slider moves the number smoothly from where it is
+   * instead of restarting from zero on every movement.
+   * @param {HTMLElement} el - element whose textContent gets updated each frame.
+   * @param {number} target - final value to land on.
+   * @param {{duration?:number, decimals?:number, suffix?:string, formatter?:function}} [opts]
+   */
   function animateNumber(el, target, opts){
     opts = opts || {};
+    if(!isFinite(target)) target = 0;
     var duration = opts.duration || 1100;
     var decimals = opts.decimals != null ? opts.decimals : 0;
-    var prefix = opts.prefix || '';
     var suffix = opts.suffix || '';
-    var formatter = opts.formatter;
+    var render = opts.formatter || function(v){ return v.toFixed(decimals) + suffix; };
+    var from = typeof el._value === 'number' ? el._value : 0;
+    el._value = target;
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(from === target || reduced){ el.textContent = render(target); return; }
     var startTime = null;
-
-    function render(value){
-      if(formatter) return formatter(value);
-      return prefix + value.toFixed(decimals) + suffix;
-    }
-
     function tick(now){
       if(startTime === null) startTime = now;
-      var progress = Math.min((now-startTime)/duration, 1);
-      var eased = 1 - Math.pow(1-progress, 3);
-      var value = target*eased;
-      el.textContent = render(value);
-      if(progress < 1) requestAnimationFrame(tick);
-      else el.textContent = render(target);
+      var progress = Math.min((now - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = render(from + (target - from) * eased);
+      // Stop if a newer call has taken over this element.
+      if(progress < 1 && el._value === target) requestAnimationFrame(tick);
     }
     requestAnimationFrame(tick);
   }
 
+  /** Rounds and formats a number with thousands separators, e.g. 3200 → "3,200". */
   function fmtInt(v){ return Math.round(v).toLocaleString('en-US'); }
 
   /* ============================= RENDER: YOUR LIFE ============================= */
+  /**
+   * Fills in the "Your Life" section (age, weeks remaining, and the four
+   * stat cards) from a single `stats` object produced by computeLifeStats.
+   * Note this function never computes anything itself — it's a pure
+   * read-and-display step, which is what keeps this section guaranteed
+   * consistent with the weeks grid below it (both read the same `stats`).
+   * @param {object} stats - result of computeLifeStats().
+   */
   function renderYourLife(stats){
     $('ageYears').textContent = stats.age.years;
     $('ageMonths').textContent = stats.age.months;
@@ -537,34 +766,77 @@
   }
 
   /* ============================= RENDER: WEEKS GRID ============================= */
+  /**
+   * Builds the "life in weeks" grid: one <div class="week-dot"> per week of
+   * the chosen life expectancy, classed past/current/future so CSS alone
+   * handles the three colors (see .week-dot.past/.current/.future).
+   *
+   * Two performance choices worth calling out for a grid that can exceed
+   * 5,000 elements (a 100-year lifespan × 52):
+   *  - Every dot is built in memory and appended once via a
+   *    DocumentFragment, instead of calling grid.appendChild() in the loop.
+   *    That's a single reflow instead of thousands.
+   *  - No per-dot event listeners are attached here — hover/click handling
+   *    is delegated once on the grid container in setupTooltip(), not
+   *    attached to each individual dot.
+   *
+   * @param {object} stats - result of computeLifeStats(); uses totalWeeks,
+   *   currentWeekIndex, and surpassed.
+   */
   function renderWeeksGrid(stats){
     var grid = $('weeksGrid');
     grid.innerHTML = '';
     var frag = document.createDocumentFragment();
     var total = stats.totalWeeks;
-    var current = stats.weeksLived;
+    var current = stats.currentWeekIndex;
 
     for(var i=0;i<total;i++){
       var div = document.createElement('div');
       var cls;
+      // If the chosen life expectancy has already passed, there is no
+      // "current" week to highlight — every square is simply "past".
       if(stats.surpassed) cls = 'past';
       else if(i < current) cls = 'past';
       else if(i === current) cls = 'current';
       else cls = 'future';
       div.className = 'week-dot ' + cls;
-      div.dataset.week = i;
+      div.dataset.week = i; // read back by the delegated hover/click handler below
       frag.appendChild(div);
     }
     grid.appendChild(frag);
   }
 
+  /**
+   * Reconstructs the real calendar date a given grid square represents,
+   * purely from its index — the grid itself stores no dates, only a
+   * 0-based week number in `dataset.week`. Row = year of age, column =
+   * week within that year, so square #942 (row 18, column 6) is
+   * "your 18th birthday + 6 weeks". Using the birthday of each row as the
+   * anchor keeps the dates exact, with no drift over a long life.
+   * @param {number} weekIndex - 0-based index of the square in the grid.
+   * @returns {string} e.g. "Week 943 · Oct 2015 · age 18"
+   */
   function weekTooltipText(weekIndex){
-    var d = new Date(currentStats.birth.getTime() + weekIndex*WEEK_MS);
-    var ageAtWeek = (weekIndex/52).toFixed(1);
+    var year = Math.floor(weekIndex / WEEKS_PER_ROW), week = weekIndex % WEEKS_PER_ROW;
+    var start = addYears(currentStats.birth, year);
+    var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + week * 7);
     var dateStr = d.toLocaleDateString('en-US', { month:'short', year:'numeric' });
-    return 'Week ' + (weekIndex+1) + ' · ' + dateStr + ' · age ' + ageAtWeek;
+    return 'Week ' + (weekIndex + 1) + ' · ' + dateStr + ' · age ' + year;
   }
 
+  /**
+   * Wires up hover/click on the weeks grid using event delegation: a
+   * *single* pair of listeners on the grid container, rather than one pair
+   * per square. With a grid that can hold 5,000+ squares, attaching a
+   * listener to each one would be needlessly expensive to set up and to
+   * garbage-collect on every re-render; delegation relies on mouse events
+   * bubbling from the square up to the container, where `e.target` still
+   * tells us exactly which square was under the cursor.
+   *
+   * Click is handled separately from hover so the tooltip also works on
+   * touch devices (which don't fire mousemove) — tapping a square shows the
+   * tooltip pinned near it for a couple of seconds, then auto-hides.
+   */
   function setupTooltip(){
     var tooltip = $('tooltip');
     var grid = $('weeksGrid');
@@ -596,6 +868,20 @@
   }
 
   /* ============================= RENDER: HABITS ============================= */
+  /**
+   * Rebuilds the entire habit list from `state.activities`. Called after
+   * any structural change (add/remove a row) — full re-render is
+   * deliberate and simple here since the list is short (a handful of rows)
+   * and rebuilding it is cheap; there's no need for more surgical DOM
+   * patching. Editing a row's *value* in place (typing in a name or an
+   * hours field) is instead handled by a lighter-weight input listener in
+   * bindEvents(), which updates state and the chart without tearing down
+   * and rebuilding every row on every keystroke.
+   *
+   * `act.id` is written into `data-id` on each field so the delegated
+   * input/click handlers in bindEvents() can look up which activity in
+   * `state.activities` a given row belongs to.
+   */
   function renderHabits(){
     var list = $('habitList');
     list.innerHTML = '';
@@ -603,12 +889,12 @@
       var row = document.createElement('div');
       row.className = 'habit-row';
       row.innerHTML =
-        '<input type="text" class="habit-name" value="'+escapeHtml(act.name)+'" placeholder="Activity name" data-id="'+act.id+'" aria-label="Activity name">' +
+        '<input type="text" class="habit-name" value="'+escapeHtml(act.name)+'" placeholder="Activity name" maxlength="'+LIMITS.nameLength+'" data-id="'+act.id+'" aria-label="Activity name">' +
         '<div class="habit-hours-wrap">' +
-          '<input type="number" class="habit-hours" value="'+act.hours+'" min="0" max="24" step="0.25" data-id="'+act.id+'" aria-label="Hours per day">' +
+          '<input type="number" class="habit-hours" value="'+act.hours+'" min="0" max="24" step="0.25" inputmode="decimal" data-id="'+act.id+'" aria-label="Hours per day for '+escapeHtml(act.name || 'this activity')+'">' +
           '<span class="habit-unit">h/day</span>' +
         '</div>' +
-        '<button class="habit-remove" type="button" data-id="'+act.id+'" aria-label="Remove activity">×</button>';
+        '<button class="habit-remove" type="button" data-id="'+act.id+'" aria-label="Remove '+escapeHtml(act.name || 'activity')+'">×</button>';
       list.appendChild(row);
     });
     renderHabitChart();
@@ -616,6 +902,20 @@
     checkHabitTotal();
   }
 
+  /**
+   * Turns each named activity into "years of a lifetime spent on this",
+   * sorted largest-first so the biggest time sinks surface at the top —
+   * the whole point of this section is the surprise of seeing which
+   * habits actually add up. Bars scale relative to the *largest* item
+   * (not to lifeExpectancy itself), so the chart stays legible whether
+   * someone's biggest habit is 2 years or 30.
+   *
+   * The bar's width is set one frame after the element is inserted
+   * (via requestAnimationFrame) rather than inline, purely so the CSS
+   * transition on .chart-fill's width has a "from 0" starting point to
+   * animate from — setting the final width immediately would skip the
+   * animation, since the browser would never paint the 0% state.
+   */
   function renderHabitChart(){
     var chart = $('habitChart');
     var empty = $('habitChartEmpty');
@@ -645,6 +945,13 @@
     });
   }
 
+  /**
+   * Sanity-checks that the entered habits don't add up to more than a
+   * 24-hour day, and shows a gentle warning if they do. Deliberately just
+   * a warning, not a hard block — someone mid-edit (about to delete an
+   * old row) shouldn't be fought by the form; the number itself is still
+   * saved and the warning simply invites a second look.
+   */
   function checkHabitTotal(){
     var total = state.activities.reduce(function(s,a){ return s + (parseFloat(a.hours)||0); }, 0);
     var warn = $('habitWarning');
@@ -657,6 +964,14 @@
   }
 
   /* ============================= WHAT IF ============================= */
+  /**
+   * Keeps the What-If dropdown's list of activities in sync with
+   * `state.activities` (an activity might have just been renamed, added,
+   * or removed). Rebuilding <option> elements would normally reset the
+   * dropdown to its first option — the `prevValue` / re-select dance below
+   * exists purely so the user's current selection survives a rebuild
+   * triggered by, say, editing a *different* row's name.
+   */
   function renderWhatIfOptions(){
     var select = $('whatIfSelect');
     var prevValue = select.value;
@@ -676,9 +991,42 @@
     updateWhatIf();
   }
 
+  // Below this many hours, the What-If slider refuses to suggest cutting
+  // sleep further — see updateWhatIf(). 7h is the commonly cited lower
+  // bound of a healthy adult sleep range; the point isn't clinical
+  // precision, it's that a tool about "getting time back" should never
+  // frame losing sleep as a way to gain it.
   var SLEEP_FLOOR_HOURS = 7;
+
+  /**
+   * Heuristic match for "is this activity sleep", by name substring rather
+   * than a fixed activity id — activities are free-text and user-renamable,
+   * so there's no stable id to key off. Deliberately case-insensitive and
+   * permissive (matches "Sleep", "sleep schedule", "Sleeping in"): a false
+   * positive just applies a floor that doesn't hurt anything else, while a
+   * false negative would silently let the harmful suggestion through, so
+   * this errs on the side of catching more.
+   * @param {string} name
+   * @returns {boolean}
+   */
   function isSleepActivity(name){ return /sleep/i.test(name || ''); }
 
+  /**
+   * Recomputes the What-If result (years/hours "recovered") whenever the
+   * selected activity or the target slider changes. Also enforces the
+   * sleep floor described above: if the selected activity looks like
+   * sleep, the slider's own `min` attribute is raised to
+   * min(SLEEP_FLOOR_HOURS, currentHours) — making it physically impossible
+   * to drag the slider into an unhealthy range, rather than allowing the
+   * drag and then clamping the displayed result after the fact.
+   *
+   * `needsReset` re-centers the slider (at half the current hours, or the
+   * sleep floor if that's higher) whenever the selection changes to a
+   * *different* activity, or whenever the previous value would now be
+   * out of the new activity's valid range — without this, switching from
+   * "Gaming: 3h" to "Sleep: 8h" could leave the slider sitting at a
+   * leftover value that makes no sense for the new selection.
+   */
   function updateWhatIf(){
     var select = $('whatIfSelect');
     var act = state.activities.find(function(a){ return a.id === select.value; });
@@ -712,7 +1060,7 @@
     }
 
     var target = parseFloat(targetSlider.value) || 0;
-    if(target < sleepFloor) target = sleepFloor;
+    if(target < sleepFloor) target = sleepFloor; // belt-and-suspenders in case `min` was bypassed programmatically
     $('whatIfTargetValue').textContent = target.toFixed(2);
 
     var savedPerDay = Math.max(0, act.hours - target);
@@ -725,6 +1073,13 @@
   }
 
   /* ============================= MILESTONES ============================= */
+  /**
+   * Renders the milestone timeline, sorted chronologically (not by
+   * insertion order) so a milestone added out of sequence still lands in
+   * the right place in the list. Milestones dated in the past are marked
+   * "passed" and shown with a dimmed dot, rather than removed — treating
+   * them as achieved history is more useful than deleting them outright.
+   */
   function renderMilestones(){
     var list = $('milestoneList');
     list.innerHTML = '';
@@ -737,12 +1092,13 @@
       return;
     }
 
-    var sorted = state.milestones.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
-    var now = new Date();
+    // ISO dates (YYYY-MM-DD) sort correctly as plain strings.
+    var sorted = state.milestones.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
+    var today = todayIso();
 
     sorted.forEach(function(m){
-      var d = new Date(m.date + 'T00:00:00');
-      var isPast = d < now;
+      var d = parseIsoDate(m.date);
+      var isPast = m.date < today;   // a milestone dated today is still "today", not "passed"
       var dateStr = d.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
       var item = document.createElement('div');
       item.className = 'milestone-item';
@@ -752,23 +1108,45 @@
           '<div class="milestone-name">'+escapeHtml(m.name)+'</div>' +
           '<div class="milestone-date">'+dateStr+(isPast?' · passed':'')+'</div>' +
         '</div>' +
-        '<button class="milestone-remove" type="button" data-id="'+m.id+'" aria-label="Remove milestone">×</button>';
+        '<button class="milestone-remove" type="button" data-id="'+m.id+'" aria-label="Remove '+escapeHtml(m.name)+'">×</button>';
       list.appendChild(item);
     });
   }
 
   /* ============================= REVEAL / FLOW ============================= */
-  var revealObserver = new IntersectionObserver(function(entries){
+  /**
+   * Fades each result section in the first time it scrolls into view. On a
+   * browser without IntersectionObserver, sections are simply shown at once
+   * (otherwise they would stay invisible at opacity 0).
+   */
+  var revealObserver = ('IntersectionObserver' in window) ? new IntersectionObserver(function(entries){
     entries.forEach(function(entry){
       if(entry.isIntersecting){
         entry.target.classList.add('is-visible');
         revealObserver.unobserve(entry.target);
       }
     });
-  }, { threshold:0.12 });
+  }, { threshold:0.12 }) : null;
+
+  /** Hands a section to the observer above, or shows it immediately if the browser has none. */
+  function observeReveal(el){
+    if(revealObserver) revealObserver.observe(el);
+    else el.classList.add('is-visible');
+  }
 
   var GATED_IDS = ['yourLife','lifeInWeeks','timeGoes','whatIf','yourFuture','finale'];
 
+  /**
+   * Runs once the user submits their birth date/life expectancy (or on
+   * page load, for a returning visitor with saved data). Computes stats
+   * once, feeds every section from that single result, then un-hides the
+   * result sections and hands them to the IntersectionObserver so each
+   * fades in the first time it scrolls into view.
+   * @param {boolean} scrollTo - whether to auto-scroll to the results (true
+   *   on manual submit; false on silent restore from localStorage, so a
+   *   returning visitor lands where they left off instead of being yanked
+   *   down the page).
+   */
   function revealResults(scrollTo){
     currentStats = computeLifeStats(state.birthDate, state.lifeExpectancy);
 
@@ -781,7 +1159,7 @@
 
     $('yourLife').classList.add('is-visible');
     ['lifeInWeeks','timeGoes','whatIf','yourFuture','finale'].forEach(function(id){
-      revealObserver.observe($(id));
+      observeReveal($(id));
     });
 
     if(scrollTo){
@@ -789,27 +1167,35 @@
     }
   }
 
+  /** Shows a validation message under the setup form. */
   function showError(msg){
     var el = $('setupError');
     el.textContent = msg;
     el.hidden = false;
   }
 
+  /**
+   * Validates and commits the setup form (birth date + life expectancy),
+   * then triggers the reveal sequence. Three checks guard against three
+   * different real mistakes, in order of how likely they are to happen by
+   * accident: an empty field, a date that doesn't exist on the calendar
+   * (isIsoDate), a date in the future (a typo, e.g.
+   * 2124 instead of 1994), and finally an implausible age (>130) as a
+   * last sanity net — not a hard biological limit, just a threshold well
+   * past any plausible human age, to catch stray typos the earlier checks
+   * wouldn't (like a birth year of 1800).
+   */
   function handleShowLife(){
     var birthInput = $('birthDate');
     var leInput = $('lifeExpectancy');
     var errorEl = $('setupError');
     var birthVal = birthInput.value;
-    var le = parseInt(leInput.value, 10);
+    var le = Math.round(num(leInput.value, LIMITS.lifeExpectancy[0], LIMITS.lifeExpectancy[1], 80));
 
     if(!birthVal){ showError('Please enter your date of birth.'); return; }
-
-    var birth = new Date(birthVal + 'T00:00:00');
-    var now = new Date();
-    if(isNaN(birth.getTime())){ showError('That date looks invalid.'); return; }
-    if(birth > now){ showError("That date hasn't happened yet."); return; }
-    var ageYearsCheck = (now - birth) / (365.25*DAY_MS);
-    if(ageYearsCheck > 130){ showError('Please double check the date of birth.'); return; }
+    if(!isIsoDate(birthVal)){ showError('That date looks invalid.'); return; }
+    if(birthVal > todayIso()){ showError("That date hasn't happened yet."); return; }
+    if(getAgeBreakdown(parseIsoDate(birthVal), new Date()).years > LIMITS.maxAge){ showError('Please double check the date of birth.'); return; }
 
     errorEl.hidden = true;
     state.birthDate = birthVal;
@@ -820,6 +1206,15 @@
   }
 
   /* ============================= EVENTS ============================= */
+  /**
+   * All event wiring lives in this one function, called once from init().
+   * Two delegation patterns recur throughout: list containers (habitList,
+   * milestoneList) get one 'input'/'click' listener each rather than
+   * per-row listeners, using each row's `data-id` to identify which item
+   * in `state` it corresponds to — the same reasoning as the weeks-grid
+   * tooltip above, just applied to a shorter, editable list instead of a
+   * read-only grid.
+   */
   function bindEvents(){
     $('ctaStart').addEventListener('click', function(){
       $('setup').scrollIntoView({ behavior:'smooth', block:'start' });
@@ -838,12 +1233,19 @@
       if(!id) return;
       var act = state.activities.find(function(a){ return a.id === id; });
       if(!act) return;
-      if(e.target.classList.contains('habit-name')) act.name = e.target.value;
-      if(e.target.classList.contains('habit-hours')) act.hours = parseFloat(e.target.value) || 0;
+      if(e.target.classList.contains('habit-name')) act.name = e.target.value.slice(0, LIMITS.nameLength);
+      if(e.target.classList.contains('habit-hours')) act.hours = num(e.target.value, LIMITS.hours[0], LIMITS.hours[1], 0);
       saveState();
       renderHabitChart();
       renderWhatIfOptions();
       checkHabitTotal();
+    });
+
+    // When the user leaves an hours field, show the cleaned value (e.g. "-3" becomes 0, "30" becomes 24).
+    $('habitList').addEventListener('change', function(e){
+      if(!e.target.classList.contains('habit-hours')) return;
+      var act = state.activities.find(function(a){ return a.id === e.target.dataset.id; });
+      if(act) e.target.value = act.hours;
     });
 
     $('habitList').addEventListener('click', function(e){
@@ -856,8 +1258,8 @@
     });
 
     $('addHabit').addEventListener('click', function(){
-      var id = 'a' + Date.now();
-      state.activities.push({ id:id, name:'', hours:1 });
+      if(state.activities.length >= LIMITS.activities) return;
+      state.activities.push({ id:uid('a'), name:'', hours:1 });
       saveState();
       renderHabits();
       var inputs = document.querySelectorAll('.habit-name');
@@ -872,10 +1274,12 @@
       e.preventDefault();
       var nameInput = $('milestoneName');
       var dateInput = $('milestoneDate');
-      var name = nameInput.value.trim();
+      var name = nameInput.value.trim().slice(0, LIMITS.milestoneLength);
       var date = dateInput.value;
-      if(!name || !date) return;
-      state.milestones.push({ id:'m'+Date.now(), name:name, date:date });
+      if(!name){ nameInput.focus(); return; }
+      if(!isIsoDate(date)){ dateInput.focus(); return; }
+      if(state.milestones.length >= LIMITS.milestones) return;
+      state.milestones.push({ id:uid('m'), name:name, date:date });
       saveState();
       renderMilestones();
       nameInput.value = '';
@@ -902,30 +1306,51 @@
     });
 
     $('resetBtn').addEventListener('click', function(){
-      if(confirm('Erase all your UNTIL data? This can\u2019t be undone.')){
-        localStorage.removeItem(STORAGE_KEY);
-        location.reload();
-      }
+      if(!confirm('Erase all your UNTIL data? This can\u2019t be undone.')) return;
+      try{ localStorage.removeItem(STORAGE_KEY); }catch(err){ /* storage unavailable: nothing to erase */ }
+      location.reload();
     });
   }
 
+  /**
+   * Drives the thin progress bar fixed to the top of the page. Marked
+   * `{ passive:true }` because this listener never calls
+   * preventDefault() — telling the browser that up front lets it start
+   * scrolling immediately rather than waiting to see if the listener will
+   * block it, which matters for scroll smoothness on a page this long.
+   */
   function setupScrollProgress(){
-    var bar = $('progressBar');
+    var bar = $('progressBar'), ticking = false;
     window.addEventListener('scroll', function(){
-      var scrollTop = window.scrollY;
-      var docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      var pct = docHeight > 0 ? (scrollTop/docHeight)*100 : 0;
-      bar.style.width = pct + '%';
+      if(ticking) return;
+      ticking = true;
+      // At most one layout read per frame, however many scroll events fire.
+      requestAnimationFrame(function(){
+        var docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        bar.style.width = (docHeight > 0 ? window.scrollY / docHeight * 100 : 0) + '%';
+        ticking = false;
+      });
     }, { passive:true });
   }
 
   /* ============================= INIT ============================= */
+  /**
+   * Entry point. Pre-fills the setup form from any saved state (so a
+   * returning visitor sees their own numbers rather than the defaults),
+   * sets sane native min/max bounds on the date input (today, and 130
+   * years back — matching the sanity check in handleShowLife so the
+   * browser's own date picker refuses the same implausible range before
+   * the user can even submit it), wires up all event listeners, and — if
+   * there's saved data — immediately runs the same reveal path a manual
+   * submit would (with `scrollTo:false`, since a returning visitor should
+   * land on the results without being scrolled away from wherever the
+   * page opened).
+   */
   function init(){
-    var todayStr = new Date().toISOString().slice(0,10);
-    var minDate = new Date();
-    minDate.setFullYear(minDate.getFullYear() - 130);
+    // Local dates (not toISOString(), which is UTC and can be "yesterday" just after midnight in Italy).
+    var todayStr = todayIso();
     $('birthDate').max = todayStr;
-    $('birthDate').min = minDate.toISOString().slice(0,10);
+    $('birthDate').min = (+todayStr.slice(0, 4) - LIMITS.maxAge) + todayStr.slice(4);
 
     $('lifeExpectancy').value = state.lifeExpectancy;
     $('lifeExpectancyValue').textContent = state.lifeExpectancy;
@@ -939,6 +1364,10 @@
     }
   }
 
+  // The script tag sits at the end of <body>, so in practice the DOM is
+  // already parsed by the time this line runs — but guarding on
+  // readyState costs nothing and makes the script safe to move (e.g. into
+  // <head>) without silently breaking.
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', init);
   } else {
@@ -947,9 +1376,14 @@
 
 })();
 
-if ('serviceWorker' in navigator) {
+/*
+  Service worker: makes the app installable and lets it open offline once
+  visited. Only registered over http(s) — browsers don't allow service
+  workers on file:// pages, where the app still works normally.
+*/
+if('serviceWorker' in navigator && /^https?:$/.test(location.protocol)){
   window.addEventListener('load', function(){
-    navigator.serviceWorker.register('service-worker.js').catch(function(){ /* offline support unavailable, app still works online */ });
+    navigator.serviceWorker.register('service-worker.js').catch(function(){ /* offline mode unavailable; the app still works online */ });
   });
 }
 </script>

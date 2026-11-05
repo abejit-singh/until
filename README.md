@@ -8,14 +8,11 @@ No backend, no build step, no dependencies to install. Everything runs client-si
 
 ## Live features
 
-- **The life galaxy.** The opening screen shows every week of your chosen lifespan as a point of light on a slowly turning sunflower spiral, from birth near the centre to the last week at the edge. Before you enter anything, a wave of light ripples outwards through it. Once you have, the weeks you've lived glow, this week pulses, and hovering any point tells you which week it is.
-- **Live preview.** While you fill in the starting form, a small dot grid previews your life in weeks and fills in as soon as your date of birth is valid.
-- **Your life.** Age in years and months, weeks lived and remaining, days lived, years remaining and the share of your chosen lifespan already lived, also drawn as a ring.
-- **Live seconds.** A counter of the seconds you've been alive, ticking in real time, with the date you turn (or turned) a billion seconds old.
-- **Your life in weeks.** A generated grid with one square per week and one row per year of age, with age labels every ten years. The current week is highlighted, and hovering or tapping any square shows the date it represents. Squares are sized in whole pixels so the grid stays sharp on every screen. The first time it scrolls into view, a line of light scans down it.
-- **Habit calculator.** Turn daily hours (sleep, work, social media, etc.) into years of your life, shown as bars, plus a 24-hour bar that shows how your day is split and how much of it is left unplanned.
+- **Your life.** Age in years and months, weeks lived and remaining, days lived, years remaining and the share of your chosen lifespan already lived.
+- **Your life in weeks.** A generated grid with one square per week and one row per year of age. The current week is highlighted, and hovering or tapping any square shows the date it represents.
+- **Habit calculator.** Turn daily hours (sleep, work, social media, etc.) into years of your life, shown as bars.
 - **What If.** Drag a slider to see how many years and hours you'd get back by changing a habit. It never suggests sleeping less than 7 hours.
-- **Milestones.** Future goals with dates, shown in order on a timeline with a "Today" marker and how far away each one is.
+- **Milestones.** Future goals with dates, shown in order on a timeline.
 - **Make Today Count.** A closing, reflective screen with a random prompt.
 
 All numbers are computed live from the date of birth and life expectancy you enter. Nothing is hardcoded or simulated.
@@ -69,7 +66,6 @@ Vanilla HTML, CSS and JavaScript in a single, fully commented file. No framework
 | `manifest.json` | App name, colours and icons for installation |
 | `service-worker.js` | Offline support and instant updates |
 | `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `favicon-32.png` | App icons |
-| `og-image.png` | Preview image shown when the link is shared (1200 × 630) |
 
 ## Disclaimer
 

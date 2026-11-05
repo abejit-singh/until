@@ -24,12 +24,7 @@
 <meta property="og:title" content="UNTIL — You don't have forever.">
 <meta property="og:description" content="Visualize the time you've lived, the time you may have left, and what you're doing with it.">
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://abejit-singh.github.io/until/">
-<meta property="og:image" content="https://abejit-singh.github.io/until/og-image.png">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta name="twitter:image" content="https://abejit-singh.github.io/until/og-image.png">
-<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="UNTIL — You don't have forever.">
 <meta name="twitter:description" content="Visualize the time you've lived, the time you may have left, and what you're doing with it.">
 <link rel="icon" type="image/png" href="favicon-32.png">
@@ -57,35 +52,26 @@
     color-scheme:dark only;
     --bg:#070707;
     --bg-elevated:#0d0d0d;
-    --bg-card:#101010;
-    --bg-card-hi:#161616;
+    --bg-card:#121212;
     --border:rgba(244,244,240,0.08);
     --border-strong:rgba(244,244,240,0.16);
     --text:#F4F4F0;
-    --text-dim:rgba(244,244,240,0.62);
-    --text-dimmer:rgba(244,244,240,0.4);
+    --text-dim:rgba(244,244,240,0.58);
+    --text-dimmer:rgba(244,244,240,0.34);
     --accent:#8DFF6A;
-    --accent-2:#3DE0B6;                       /* teal partner of the accent, used in gradients */
     --accent-glow:rgba(141,255,106,0.45);
-    --accent-soft:rgba(141,255,106,0.1);
-    --accent-line:rgba(141,255,106,0.38);
     --red:#ff6a6a;
     --amber:#ffb86a;
-    /* Squares of the weeks grid; decades alternate between two shades so rows are easy to count. */
-    --dot-past:rgba(244,244,240,0.3);
-    --dot-past-alt:rgba(244,244,240,0.21);
-    --dot-future:rgba(244,244,240,0.065);
-    --dot-future-alt:rgba(244,244,240,0.04);
-    --pv-ahead:rgba(244,244,240,0.16);         /* setup preview dots */
-    --pv-lived:rgba(244,244,240,0.62);
-    --tick:rgba(244,244,240,0.14);             /* hero ring */
-    --tick-lived:rgba(244,244,240,0.62);
-    /* Habit colours: a green → teal → violet ramp, assigned in list order. */
-    --h1:#8DFF6A; --h2:#4FE39A; --h3:#2FCBB8; --h4:#38AEDB;
-    --h5:#6F93F2; --h6:#A383F5; --h7:#D681E6; --h8:#F28AB6;
-    --grad:linear-gradient(120deg,var(--accent) 0%,var(--accent-2) 100%);
-    --edge:linear-gradient(180deg,rgba(244,244,240,0.16),rgba(244,244,240,0.04));
-    --radius:16px;
+    /* Premium layer: light, depth and texture (see PREMIUM LAYER at the end) */
+    --accent-hi:#BDFFA6;                   /* top of the accent gradient */
+    --accent-lo:#6CE247;                   /* bottom of the accent gradient */
+    --accent-soft:rgba(141,255,106,0.12);
+    --surface-top:#161616;                 /* cards: lighter at the top… */
+    --surface-bottom:#0d0d0d;              /* …darker at the bottom */
+    --edge:rgba(244,244,240,0.13);         /* a card's top edge, catching the light */
+    --edge-low:rgba(244,244,240,0.04);     /* …and its bottom edge */
+    --shadow-card:inset 0 1px 0 rgba(255,255,255,0.04),0 24px 48px -30px rgba(0,0,0,0.95);
+    --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
     --font-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     --font-display:'Space Grotesk',var(--font-sans);
     --font-mono:'JetBrains Mono','SF Mono',Menlo,Consolas,monospace;
@@ -94,11 +80,13 @@
 
   /* ============================= RESET ============================= */
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-  /* `hidden` must win over layout rules such as .section{display:flex}, or gated sections would show before setup. */
+  /* `hidden` must win over layout rules such as .section{display:flex}, or the result sections would show before setup. */
   [hidden]{display:none !important;}
-  html{scroll-behavior:smooth;}
+  html{scroll-behavior:smooth;scrollbar-color:rgba(244,244,240,0.16) transparent;}
   body{
     background-color:var(--bg);
+    background-image:radial-gradient(rgba(244,244,240,0.03) 1px, transparent 1px);
+    background-size:16px 16px;
     color:var(--text);
     font-family:var(--font-sans);
     font-weight:300;
@@ -107,62 +95,39 @@
     -webkit-font-smoothing:antialiased;
     text-rendering:optimizeLegibility;
   }
-  /* Fixed backdrop: two soft pools of light and a faint dot grid. */
-  body::before{
-    content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
-    background:
-      radial-gradient(55rem 38rem at -10% -10%,rgba(141,255,106,0.07),transparent 60%),
-      radial-gradient(50rem 40rem at 110% 110%,rgba(61,224,182,0.05),transparent 60%),
-      radial-gradient(rgba(244,244,240,0.035) 1px,transparent 1px) 0 0/16px 16px;
-  }
-  /* Film grain: a tiny tiled SVG noise, barely visible, gives the black some texture. */
-  body::after{
-    content:'';position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.04;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 .9 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-  ::selection{background:var(--accent);color:var(--bg);}
+  ::selection{background:var(--accent);color:#070707;}
   img,svg{display:block;max-width:100%;}
   button,input,select{font:inherit;color:inherit;}
   a{color:inherit;}
   h1,h2,h3{font-family:var(--font-display);font-weight:600;letter-spacing:-0.02em;line-height:1.05;}
-  h2{font-size:clamp(2rem,5.2vw,3.5rem);margin-bottom:1rem;text-wrap:balance;}
+  h2{font-size:clamp(2rem,5.2vw,3.5rem);margin-bottom:1rem;}
   p{max-width:60ch;}
-  button:focus-visible,input:focus-visible,select:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
+  button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px;}
 
   @media (prefers-reduced-motion: reduce){
-    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}
+    *,*::before,*::after{animation-duration:.01ms !important;animation-iteration-count:1 !important;animation-delay:0s !important;transition-duration:.01ms !important;}
     html{scroll-behavior:auto;}
   }
 
-  /* ============================= CHROME (progress / reset / tooltip / rail) ============================= */
-  .progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:var(--grad);z-index:999;box-shadow:0 0 12px var(--accent-glow);}
+  /* ============================= CHROME (progress / reset / tooltip) ============================= */
+  .progress-bar{position:fixed;top:0;left:0;height:3px;width:0%;background:linear-gradient(90deg,var(--accent-lo),var(--accent-hi));z-index:999;box-shadow:0 0 12px var(--accent-glow);}
 
   .reset-btn{
-    position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:20px;width:44px;height:44px;border-radius:50%;
-    background:rgba(16,16,16,0.72);border:1px solid var(--border-strong);color:var(--text-dim);
+    position:fixed;bottom:calc(20px + env(safe-area-inset-bottom));left:20px;width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(180deg,rgba(244,244,240,0.08),rgba(244,244,240,0.02));border:1px solid var(--border-strong);color:var(--text-dim);
     font-size:1.05rem;cursor:pointer;z-index:900;display:flex;align-items:center;justify-content:center;
     transition:all .35s var(--ease);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),0 10px 24px -10px rgba(0,0,0,0.9);
   }
-  .reset-btn:hover{border-color:var(--accent);color:var(--accent);transform:rotate(-70deg);}
+  .reset-btn:hover{border-color:var(--accent);color:var(--accent);transform:rotate(-70deg);box-shadow:inset 0 1px 0 rgba(255,255,255,0.08),0 0 0 4px var(--accent-soft),0 10px 24px -10px rgba(0,0,0,0.9);}
 
   .tooltip{
-    position:fixed;pointer-events:none;z-index:1000;background:rgba(14,14,14,0.94);border:1px solid var(--border-strong);
+    position:fixed;pointer-events:none;z-index:1000;background:rgba(18,18,18,0.72);border:1px solid var(--border-strong);
     color:var(--text);font-family:var(--font-mono);font-size:.72rem;padding:7px 11px;border-radius:8px;
-    opacity:0;transition:opacity .15s;white-space:nowrap;transform:translate(-50%,-140%);
-    box-shadow:0 14px 32px -12px rgba(0,0,0,0.9);
+    opacity:0;transition:opacity .15s;white-space:nowrap;transform:translate(-50%,-130%);
+    backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.06),0 14px 30px -12px rgba(0,0,0,0.9);
   }
-
-  /* Section rail: a dot per section on the right edge (wide screens only). */
-  .rail{position:fixed;right:clamp(14px,1.8vw,30px);top:50%;transform:translateY(-50%);z-index:800;display:none;flex-direction:column;align-items:flex-end;}
-  @media (min-width:1100px) and (min-height:600px){ .rail{display:flex;} }
-  .rail a{display:flex;align-items:center;gap:.75rem;padding:.4rem 0 .4rem .75rem;text-decoration:none;color:var(--text-dimmer);font-family:var(--font-mono);font-size:.6rem;letter-spacing:.16em;text-transform:uppercase;transition:color .3s;}
-  .rail-label{opacity:0;transform:translateX(6px);transition:opacity .3s var(--ease),transform .3s var(--ease);white-space:nowrap;}
-  .rail-dot{width:6px;height:6px;border-radius:50%;background:currentColor;transition:transform .3s var(--ease),box-shadow .3s;}
-  .rail a:hover,.rail a:focus-visible{color:var(--text);}
-  .rail a:hover .rail-label,.rail a:focus-visible .rail-label{opacity:1;transform:none;}
-  .rail a.is-active{color:var(--accent);}
-  .rail a.is-active .rail-dot{transform:scale(1.6);box-shadow:0 0 10px var(--accent-glow);}
-  @media (min-width:1400px){ .rail a.is-active .rail-label{opacity:1;transform:none;} }
 
   /* ============================= LAYOUT ============================= */
   .section{
@@ -170,107 +135,108 @@
     display:flex;flex-direction:column;justify-content:center;position:relative;
     max-width:1160px;margin:0 auto;width:100%;
   }
-  .reveal{opacity:0;transform:translateY(26px);transition:opacity .9s var(--ease),transform .9s var(--ease);}
-  .reveal.is-visible{opacity:1;transform:translateY(0);}
+  /* A section's parts arrive one after another the first time it scrolls into
+     view: each rises a little, out of a soft blur. `translate` rather than
+     `transform`, so it never fights with the tilt on cards; an animation
+     rather than a transition, so it never fights with their hover effects.
+     --i is the part's place in the section. */
+  .reveal:not(.is-visible) > *{opacity:0;}
+  .reveal.is-visible > *{animation:rise 1s var(--ease) backwards;animation-delay:calc(var(--i,0) * 80ms);}
+  :is(.reveal,.hero-content) > :nth-child(2){--i:1;}
+  :is(.reveal,.hero-content) > :nth-child(3){--i:2;}
+  :is(.reveal,.hero-content) > :nth-child(4){--i:3;}
+  :is(.reveal,.hero-content) > :nth-child(5){--i:4;}
+  :is(.reveal,.hero-content) > :nth-child(6){--i:5;}
+  :is(.reveal,.hero-content) > :nth-child(n+7){--i:6;}
+  @keyframes rise{from{opacity:0;translate:0 24px;filter:blur(8px);}}
 
   .eyebrow{
-    display:inline-flex;align-items:center;gap:.75rem;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.18em;
+    display:inline-block;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.18em;
     color:var(--accent);text-transform:uppercase;margin-bottom:1.1rem;
+    text-shadow:0 0 18px rgba(141,255,106,0.35);
   }
-  .eyebrow::before{content:'';width:22px;height:1px;background:currentColor;opacity:.7;flex-shrink:0;}
-  .lede{color:var(--text-dim);margin-bottom:2.25rem;font-size:1.05rem;font-weight:300;}
-
-  /* A card with a hairline edge that is lighter on top, as if lit from above. */
-  .card{background:linear-gradient(var(--bg-card),var(--bg-card)) padding-box,var(--edge) border-box;border:1px solid transparent;border-radius:var(--radius);}
-  .card-head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:1.1rem;}
-  .card-title{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);}
-  .card-meta{font-family:var(--font-mono);font-size:.72rem;color:var(--text-dimmer);text-align:right;}
+  .lede{color:var(--text-dim);margin-bottom:2.25rem;font-size:1.02rem;font-weight:300;}
 
   /* ============================= BUTTONS & FIELDS ============================= */
   .btn{
     font-family:var(--font-sans);font-weight:600;font-size:.98rem;padding:1rem 1.7rem;border-radius:999px;
-    border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;
-    transition:transform .3s var(--ease),box-shadow .3s var(--ease),background .3s,border-color .3s,color .3s;
+    border:1px solid transparent;cursor:pointer;display:inline-flex;
+    align-items:center;gap:.5rem;white-space:nowrap;
+    position:relative;isolation:isolate;overflow:hidden;
+    transition:transform .4s var(--ease),box-shadow .4s var(--ease),background-color .3s,border-color .3s,color .3s;
   }
-  /* --mx / --my: the "magnetic" lean towards the cursor, set by setupMagnetic(). */
-  .btn-primary{background:var(--accent);color:var(--bg);box-shadow:0 10px 30px -12px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,0.45);transform:translate(var(--mx,0px),var(--my,0px));}
-  .btn-primary:hover{transform:translate(var(--mx,0px),calc(var(--my,0px) - 2px));box-shadow:0 16px 40px -10px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,0.45);}
-  .btn-primary:active{transform:translate(var(--mx,0px),var(--my,0px)) scale(.98);}
-  .btn-ghost{background:rgba(244,244,240,0.02);color:var(--text);border-color:var(--border-strong);}
-  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
+  /* A band of light sweeps across a button when the mouse arrives. */
+  .btn::after{content:'';position:absolute;inset:0;z-index:-1;border-radius:inherit;pointer-events:none;
+    background:linear-gradient(110deg,transparent 30%,rgba(255,255,255,0.55) 48%,transparent 66%);
+    transform:translateX(-115%);transition:transform .9s var(--ease);}
+  .btn:hover::after{transform:translateX(115%);}
+  /* --mx / --my: the button leans a few pixels towards the cursor (setupPointerEffects). */
+  .btn-primary{
+    background:linear-gradient(180deg,var(--accent-hi),var(--accent) 48%,var(--accent-lo));color:#070707;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.65),inset 0 -1px 0 rgba(0,0,0,0.14),0 10px 30px -12px var(--accent-glow);
+    transform:translate(var(--mx,0px),var(--my,0px));
+  }
+  .btn-primary:hover{transform:translate(var(--mx,0px),calc(var(--my,0px) - 2px));box-shadow:inset 0 1px 0 rgba(255,255,255,0.65),inset 0 -1px 0 rgba(0,0,0,0.14),0 16px 40px -10px var(--accent-glow);}
+  .btn-primary:active{transform:translate(var(--mx,0px),var(--my,0px)) scale(.97);transition-duration:.1s;}
+  .btn-ghost{background:linear-gradient(180deg,rgba(244,244,240,0.06),rgba(244,244,240,0.015));color:var(--text);border-color:var(--border-strong);box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);}
+  .btn-ghost::after{background:linear-gradient(110deg,transparent 30%,rgba(141,255,106,0.16) 48%,transparent 66%);}
+  .btn-ghost:hover{border-color:var(--accent);color:var(--accent);}
+  .btn-ghost:active{transform:scale(.97);transition-duration:.1s;}
   .arrow{transition:transform .3s var(--ease);}
   .btn:hover .arrow{transform:translateX(4px);}
 
   input[type="date"],input[type="text"],input[type="number"],select{
-    width:100%;background-color:var(--bg-card);border:1px solid var(--border-strong);color:var(--text);
-    padding:.9rem 1rem;border-radius:12px;font-size:1rem;font-family:var(--font-sans);
-    transition:border-color .25s,box-shadow .25s,background-color .25s;
+    width:100%;background:linear-gradient(180deg,#0b0b0b,#141414);border:1px solid var(--border-strong);color:var(--text);
+    padding:.9rem 1rem;border-radius:10px;font-size:1rem;font-family:var(--font-sans);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.6);
+    transition:border-color .25s,box-shadow .3s var(--ease);
   }
   input::placeholder{color:var(--text-dimmer);}
   input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(1) opacity(.6);cursor:pointer;}
-  input[type="date"]:focus,input[type="text"]:focus,input[type="number"]:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);}
-  /* Native select with its arrow redrawn as a small accent chevron (two CSS triangles). */
+  input[type="date"]:focus,input[type="text"]:focus,input[type="number"]:focus,select:focus{outline:none;border-color:var(--accent);box-shadow:inset 0 1px 2px rgba(0,0,0,0.6),0 0 0 4px var(--accent-soft);}
+  /* The select's arrow, redrawn as a small accent chevron (two CSS triangles) over the field's gradient. */
   select{
     -webkit-appearance:none;appearance:none;cursor:pointer;padding-right:2.8rem;
-    background-image:linear-gradient(45deg,transparent 50%,var(--accent) 50%),linear-gradient(135deg,var(--accent) 50%,transparent 50%);
-    background-position:calc(100% - 22px) 52%,calc(100% - 17px) 52%;background-size:5px 5px,5px 5px;background-repeat:no-repeat;
+    background:linear-gradient(45deg,transparent 50%,var(--accent) 50%) calc(100% - 22px) 52% / 5px 5px no-repeat,
+      linear-gradient(135deg,var(--accent) 50%,transparent 50%) calc(100% - 17px) 52% / 5px 5px no-repeat,
+      linear-gradient(180deg,#0b0b0b,#141414);
   }
-  select option{background:var(--bg-card);color:var(--text);}
+  select option{background:#141414;color:var(--text);}
 
-  /* Range sliders: the filled part of the track is painted from --fill, which paintRange() keeps up to date. */
-  input[type="range"]{
-    -webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;outline:none;cursor:pointer;
-    background:linear-gradient(90deg,var(--accent),var(--accent-2) var(--fill,0%),rgba(244,244,240,0.12) var(--fill,0%));
-  }
-  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);cursor:pointer;border:4px solid var(--bg);box-shadow:0 0 0 1px var(--accent),0 0 16px var(--accent-glow);transition:transform .2s var(--ease);}
-  input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.15);}
-  input[type="range"]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);border:4px solid var(--bg);box-shadow:0 0 0 1px var(--accent);cursor:pointer;}
+  input[type="range"]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:99px;outline:none;cursor:pointer;
+    background:linear-gradient(90deg,var(--accent-lo),var(--accent) var(--fill,0%),rgba(244,244,240,0.12) var(--fill,0%));
+    box-shadow:inset 0 1px 2px rgba(0,0,0,0.6);}
+  input[type="range"]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;cursor:pointer;
+    background:radial-gradient(circle at 35% 30%,#fff 0 12%,var(--accent-hi) 30%,var(--accent) 70%);
+    box-shadow:0 0 0 4px rgba(141,255,106,0.14),0 0 16px var(--accent-glow);transition:transform .25s var(--ease),box-shadow .25s var(--ease);}
+  input[type="range"]::-webkit-slider-thumb:hover{transform:scale(1.12);}
+  input[type="range"]:active::-webkit-slider-thumb{transform:scale(1.18);box-shadow:0 0 0 8px rgba(141,255,106,0.12),0 0 24px var(--accent-glow);}
+  input[type="range"]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;border:none;cursor:pointer;
+    background:radial-gradient(circle at 35% 30%,#fff 0 12%,var(--accent-hi) 30%,var(--accent) 70%);box-shadow:0 0 0 4px rgba(141,255,106,0.14),0 0 16px var(--accent-glow);}
   input[type="range"]::-moz-range-track{background:transparent;height:6px;border-radius:99px;}
 
   .field{margin:1.6rem 0;max-width:460px;}
   .field label{display:block;font-size:.86rem;color:var(--text-dim);margin-bottom:.65rem;}
-  .field-value{color:var(--accent);font-family:var(--font-mono);font-weight:500;}
-  .field-label{display:block;font-family:var(--font-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.6rem;}
+  .field-value{color:var(--accent);font-family:var(--font-mono);}
   .disclaimer{font-size:.84rem;color:var(--text-dimmer);margin:1.4rem 0 2rem;line-height:1.65;max-width:460px;}
   .error-msg{color:var(--red);font-size:.85rem;margin-top:1rem;}
 
   /* ============================= HERO ============================= */
-  .hero{text-align:left;}
+  .hero{align-items:flex-start;text-align:left;}
   .hero::before{
-    content:'';position:absolute;top:10%;left:2%;width:620px;height:620px;max-width:90vw;
-    background:radial-gradient(circle,rgba(141,255,106,.1),transparent 68%);filter:blur(30px);
+    content:'';position:absolute;top:12%;left:6%;width:560px;height:560px;max-width:80vw;
+    background:radial-gradient(circle,rgba(141,255,106,.09),transparent 70%);filter:blur(30px);
     pointer-events:none;z-index:-1;
   }
-  .hero-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:3rem;align-items:center;}
-  .hero-content{max-width:640px;opacity:0;animation:heroIn 1s var(--ease) forwards;animation-delay:.1s;}
-  .hero-title{font-family:var(--font-display);font-size:clamp(3.4rem,12vw,8.5rem);font-weight:700;letter-spacing:-.035em;line-height:.92;}
-  .hero-title .dot{color:var(--accent);text-shadow:0 0 34px var(--accent-glow);}
-  .hero-tagline{font-family:var(--font-display);font-size:clamp(1.35rem,4vw,2.1rem);color:var(--text-dim);margin-top:1rem;font-weight:500;}
-  .hero-subtitle{max-width:520px;margin-top:1.4rem;color:var(--text-dim);font-size:1.05rem;font-weight:300;}
-  .hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:1.1rem 1.5rem;margin-top:2.4rem;}
-  .hero-note{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.08em;color:var(--text-dimmer);}
-
-  /* The life galaxy: one point per week on a sunflower spiral, drawn by initGalaxy(). */
-  .hero-visual{position:relative;width:100%;max-width:470px;aspect-ratio:1;justify-self:end;animation:fadeIn 1.6s var(--ease) .35s both;}
-  .galaxy{display:block;width:100%;height:100%;cursor:crosshair;}
-  /* The number sits on a dark disc so the spiral never makes it hard to read. */
-  .ring-center{position:absolute;left:50%;top:50%;width:37%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
-  .ring-num{font-family:var(--font-mono);font-weight:700;font-size:clamp(1.6rem,3vw,2.5rem);line-height:1;letter-spacing:-.02em;}
-  .ring-cap{margin-top:.5rem;max-width:9rem;font-size:.72rem;line-height:1.4;color:var(--text-dim);}
-  .galaxy-tip{position:absolute;pointer-events:none;transform:translate(-50%,-160%);padding:6px 10px;border-radius:8px;border:1px solid var(--border-strong);background:rgba(14,14,14,0.94);font-family:var(--font-mono);font-size:.7rem;white-space:nowrap;opacity:0;transition:opacity .15s;}
-  .galaxy-tip.show{opacity:1;}
-
-  /* The title arrives letter by letter, out of a blur. */
-  .hero-title .ch{display:inline-block;animation:chIn 1s var(--ease) both;animation-delay:calc(.2s + var(--d) * 75ms);}
-  .hero-title .dot{display:inline-block;animation:dotIn .7s cubic-bezier(.3,1.6,.5,1) both .75s;}
-  @keyframes chIn{from{opacity:0;transform:translateY(.35em) rotate(5deg);filter:blur(10px);}}
-  @keyframes dotIn{from{opacity:0;transform:scale(0);}}
-
-  /* A soft light that follows the mouse across the page (see setupSpotlight). */
-  .spotlight{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s;
-    background:radial-gradient(420px circle at var(--sx,50%) var(--sy,50%),rgba(141,255,106,0.07),transparent 70%);}
-  .spotlight.on{opacity:1;}
-
+  .hero-content{max-width:900px;}
+  .hero-content > *{animation:rise 1.2s var(--ease) backwards;animation-delay:calc(.15s + var(--i,0) * 100ms);}
+  /* The title is lit from above: white at the top, fading to silver. */
+  .hero-title{font-family:var(--font-display);font-size:clamp(3.4rem,13vw,8.5rem);font-weight:700;letter-spacing:-.035em;line-height:.95;
+    background:linear-gradient(180deg,#fff 25%,#a9a9a2);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .hero-title .dot{color:var(--accent);text-shadow:0 0 30px var(--accent-glow);}
+  .hero-tagline{font-family:var(--font-display);font-size:clamp(1.35rem,4vw,2.1rem);color:var(--text-dim);margin-top:.9rem;font-weight:500;}
+  .hero-subtitle{max-width:520px;margin-top:1.6rem;color:var(--text-dim);font-size:1.05rem;font-weight:300;}
+  .hero-content .btn{margin-top:2.4rem;}
   .scroll-hint{
     position:absolute;bottom:2.6rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;
     align-items:center;gap:.5rem;font-family:var(--font-mono);font-size:.68rem;letter-spacing:.15em;
@@ -279,241 +245,183 @@
   }
   @keyframes heroIn{from{opacity:0;transform:translateY(18px);}to{opacity:1;transform:translateY(0);}}
   @keyframes bob{0%,100%{transform:translate(-50%,0);}50%{transform:translate(-50%,7px);}}
-  @keyframes fadeIn{from{opacity:0;}}
-
-  /* On narrower screens the ring moves behind the title, faded, as a backdrop. */
-  @media (max-width:959px){
-    .hero{overflow:hidden;}                /* the ring hangs off the right edge: clip it here, not with a sideways scroll */
-    .hero-grid{display:block;}
-    .hero-visual{width:min(420px,90vw);margin:2.6rem auto 0;}
-    .scroll-hint{display:none;}
-  }
 
   /* ============================= SETUP ============================= */
-  .setup-grid{display:grid;grid-template-columns:minmax(0,520px) minmax(0,1fr);gap:3rem clamp(2rem,6vw,6rem);align-items:center;}
   .setup-inner{max-width:520px;}
-  .setup-preview{justify-self:end;padding:1.3rem 1.4rem 1.2rem;box-shadow:0 40px 80px -50px rgba(0,0,0,0.9);}
-  .preview-head{display:flex;justify-content:space-between;gap:1rem;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dimmer);margin-bottom:1rem;}
-  .preview-head b{color:var(--text);font-weight:500;}
-  /* The preview is drawn with repeating dot patterns: JS only sets --rows, --lived and --partial. */
-  .preview-grid{
-    --cell:6px;position:relative;width:calc(var(--cell) * 52);height:calc(var(--cell) * var(--rows,80));
-    background-image:radial-gradient(circle,var(--pv-ahead) 1.15px,transparent 1.55px);background-size:var(--cell) var(--cell);
-    transition:height .5s var(--ease);
-  }
-  .pv-lived,.pv-row{
-    position:absolute;left:0;background-image:radial-gradient(circle,var(--pv-lived) 1.15px,transparent 1.55px);background-size:var(--cell) var(--cell);
-    transition:height .6s var(--ease),width .6s var(--ease),top .6s var(--ease);
-  }
-  .pv-lived{top:0;width:100%;height:calc(var(--cell) * var(--lived,0));}
-  .pv-row{top:calc(var(--cell) * var(--lived,0));height:var(--cell);width:calc(100% * var(--partial,0));}
-  .pv-row::after{content:'';position:absolute;top:0;left:100%;width:var(--cell);height:var(--cell);border-radius:50%;background:var(--accent);box-shadow:0 0 8px var(--accent-glow);transform:scale(.7);opacity:0;transition:opacity .3s;}
-  .preview-grid.has-date .pv-row::after{opacity:1;}
-  .preview-foot{margin-top:1rem;font-size:.78rem;color:var(--text-dimmer);}
-  @media (max-width:899px){
-    .setup-grid{display:block;}
-    .setup-preview{display:none;}
-  }
 
   /* ============================= YOUR LIFE ============================= */
-  .life-top{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2.5rem 4rem;align-items:center;margin-bottom:2.5rem;}
-  .life-stat-main{margin-bottom:2.6rem;}
-  .life-stat-main:last-child{margin-bottom:0;}
-  .big-stat{font-family:var(--font-mono);font-size:clamp(2.6rem,8.8vw,5.2rem);font-weight:700;line-height:1;letter-spacing:-.03em;font-variant-numeric:tabular-nums;}
-  .big-stat .unit{font-size:.34em;color:var(--text-dim);font-family:var(--font-sans);font-weight:400;letter-spacing:0;margin:0 .85em 0 .35em;}
-  .big-stat .unit:last-child{margin-right:0;}
-  .big-stat.accent .num{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;}
-  .basis-note{font-size:.85rem;color:var(--text-dimmer);margin-top:.9rem;max-width:480px;}
-  .surpassed-note{color:var(--accent);font-size:.9rem;margin-top:1rem;max-width:480px;}
-
-  .life-gauge{position:relative;width:clamp(210px,24vw,280px);aspect-ratio:1;}
-  .gauge{width:100%;height:100%;transform:rotate(-90deg);overflow:visible;filter:drop-shadow(0 0 16px rgba(141,255,106,0.18));}
-  .gauge-track{fill:none;stroke:rgba(244,244,240,0.07);stroke-width:14;}
-  .gauge-arc{fill:none;stroke:url(#gaugeGrad);stroke-width:14;stroke-linecap:round;stroke-dasharray:628.3;stroke-dashoffset:628.3;transition:stroke-dashoffset 1.8s var(--ease);}
-  .gauge-stop-a{stop-color:var(--accent);}
-  .gauge-stop-b{stop-color:var(--accent-2);}
-  .gauge-inner{fill:none;stroke:var(--border);stroke-width:1;stroke-dasharray:1 5;}
-  .gauge-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;}
-  .gauge-num{font-family:var(--font-mono);font-size:clamp(1.8rem,3vw,2.4rem);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;}
-  .gauge-cap{font-size:.76rem;color:var(--text-dim);margin-top:.5rem;max-width:9rem;line-height:1.4;}
-
-  /* Seconds alive, live. Tabular figures keep the digits from jittering as they change. */
-  .live-clock{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.4rem;padding:1.3rem 1.5rem;border-radius:var(--radius);
-    background:linear-gradient(var(--bg-card),var(--bg-card)) padding-box,linear-gradient(120deg,var(--accent-line),rgba(244,244,240,0.06) 40%,rgba(61,224,182,0.3)) border-box;border:1px solid transparent;}
-  .live-label{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);}
-  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent-glow);animation:pulse 1.2s ease-in-out infinite;}
-  .live-num{font-family:var(--font-mono);font-size:clamp(1.9rem,6vw,3.4rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
-  .live-num small{font-size:.5em;color:var(--accent);margin-left:.05em;}
-  .live-sub{font-size:.84rem;color:var(--text-dim);}
-  .life-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
-  .stat-card{background:var(--bg-card);padding:1.4rem 1.5rem;display:flex;flex-direction:column;gap:.6rem;transition:background .3s;}
-  .stat-card:hover{background:var(--bg-card-hi);}
-  .stat-label{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dim);}
-  .stat-value{font-family:var(--font-mono);font-size:1.7rem;font-weight:600;font-variant-numeric:tabular-nums;}
-  .stat-unit{font-size:.58em;color:var(--text-dim);font-weight:400;font-family:var(--font-sans);}
-  @media (max-width:760px){
-    .life-top{grid-template-columns:minmax(0,1fr);}
-    .life-gauge{justify-self:center;width:220px;}
-  }
+  .life-stat-main{margin-bottom:2.75rem;}
+  .big-stat{font-family:var(--font-mono);font-size:clamp(2.6rem,8.8vw,5.2rem);font-weight:700;line-height:1;letter-spacing:-.02em;}
+  /* The numbers are lit from above; the units and the comma keep their own colour. */
+  .big-stat > span:not(.unit){background:linear-gradient(180deg,#fff 30%,#b3b3ac);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .big-stat .unit{font-size:.34em;color:var(--text-dim);font-family:var(--font-sans);font-weight:400;margin-left:.4rem;}
+  .basis-note{font-size:.85rem;color:var(--text-dimmer);margin:.5rem 0 1.75rem;max-width:480px;}
+  .surpassed-note{color:var(--accent);font-size:.9rem;margin-bottom:1.75rem;max-width:480px;}
+  .life-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:.5rem;}
+  .stat-card{background:var(--bg-card);padding:1.4rem 1.5rem;display:flex;flex-direction:column;gap:.5rem;}
+  .stat-label{font-size:.76rem;color:var(--text-dim);}
+  .stat-value{font-family:var(--font-mono);font-size:1.55rem;font-weight:600;font-variant-numeric:tabular-nums;}
+  .stat-unit{font-size:.62em;color:var(--text-dim);font-weight:400;font-family:var(--font-sans);}
 
   /* ============================= LIFE IN WEEKS ============================= */
-  .weeks-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem 2rem;margin:.25rem 0 1.8rem;}
-  .weeks-legend{display:flex;gap:1.5rem;font-size:.8rem;color:var(--text-dim);flex-wrap:wrap;}
-  .weeks-scale{font-family:var(--font-mono);font-size:.64rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dimmer);}
+  .weeks-legend{display:flex;gap:1.5rem;margin:.25rem 0 2rem;font-size:.8rem;color:var(--text-dim);flex-wrap:wrap;}
   .legend-item{display:flex;align-items:center;gap:.55rem;}
-  .legend-dot{width:9px;height:9px;border-radius:2px;flex-shrink:0;}
-  .legend-dot.past{background:var(--dot-past);}
+  .legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+  .legend-dot.past{background:rgba(244,244,240,0.32);}
   .legend-dot.current{background:var(--accent);box-shadow:0 0 6px var(--accent-glow);}
-  .legend-dot.future{background:var(--dot-future);box-shadow:inset 0 0 0 1px var(--border);}
-
-  /* Square size and gap are set in whole pixels by layoutWeeksGrid() (see there for why). */
-  .weeks-frame{position:relative;padding-left:var(--axis,40px);}
-  .weeks-axis{position:absolute;left:0;top:0;bottom:0;width:var(--axis,40px);pointer-events:none;}
-  .axis-label{position:absolute;left:0;display:flex;align-items:center;font-family:var(--font-mono);font-size:.6rem;line-height:1;color:var(--text-dimmer);}
-  .axis-now{position:absolute;right:5px;display:flex;align-items:center;font-size:.55rem;line-height:1;color:var(--accent);}
-  .weeks-now{position:absolute;display:flex;align-items:center;gap:.55rem;font-family:var(--font-mono);font-size:.7rem;color:var(--accent);white-space:nowrap;pointer-events:none;}
-  .weeks-now::before{content:'';width:18px;height:1px;background:var(--accent);opacity:.6;}
-  .weeks-grid{display:grid;grid-template-columns:repeat(52,var(--cell,10px));grid-auto-rows:var(--cell,10px);gap:var(--gap,2px);width:max-content;}
-  /* First time the grid comes into view, a line of light scans down it and the rows appear behind it. */
-  @property --scan{syntax:'<percentage>';inherits:true;initial-value:110%;}
-  .weeks-frame.scanning{animation:scan 2.2s cubic-bezier(.45,.05,.25,1) both;}
-  .weeks-frame.scanning .weeks-grid{-webkit-mask-image:linear-gradient(180deg,#000 calc(var(--scan) - 4%),rgba(0,0,0,0.08) calc(var(--scan) + 2%));mask-image:linear-gradient(180deg,#000 calc(var(--scan) - 4%),rgba(0,0,0,0.08) calc(var(--scan) + 2%));}
-  .weeks-frame.scanning::after{content:'';position:absolute;left:var(--axis,40px);width:calc(52 * var(--cell,10px) + 51 * var(--gap,2px));top:var(--scan);height:2px;pointer-events:none;
-    background:linear-gradient(90deg,transparent,var(--accent) 20%,var(--accent-2) 80%,transparent);box-shadow:0 0 14px var(--accent-glow),0 0 2px var(--accent);}
-  @keyframes scan{from{--scan:-4%;}to{--scan:104%;}}
-  .week-dot{border-radius:22%;transition:transform .15s var(--ease);cursor:default;}
-  .week-dot:hover{transform:scale(1.8);position:relative;z-index:1;}
-  .week-dot.past{background:var(--dot-past);}
-  .week-dot.past.alt{background:var(--dot-past-alt);}
-  .week-dot.future{background:var(--dot-future);}
-  .week-dot.future.alt{background:var(--dot-future-alt);}
-  .week-dot.past:hover,.week-dot.future:hover{background:var(--text);}
-  .week-dot.current{background:var(--accent);box-shadow:0 0 0 2px rgba(141,255,106,0.25),0 0 12px var(--accent-glow);animation:pulse 2.2s ease-in-out infinite;position:relative;z-index:1;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.45;}}
+  .legend-dot.future{background:rgba(244,244,240,0.06);}
+  .weeks-grid{display:grid;grid-template-columns:repeat(52,1fr);gap:3px;margin-top:.5rem;}
+  .week-dot{aspect-ratio:1;border-radius:1.5px;transition:transform .15s var(--ease);cursor:default;}
+  .week-dot:hover{transform:scale(1.7);}
+  .week-dot.past{background:rgba(244,244,240,0.3);}
+  .week-dot.current{background:var(--accent);box-shadow:0 0 7px var(--accent-glow);animation:pulse 2.2s ease-in-out infinite;}
+  .week-dot.future{background:rgba(244,244,240,0.05);}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
   @media (max-width:640px){
     #lifeInWeeks{padding-left:1.1rem;padding-right:1.1rem;}
+    .weeks-grid{gap:1.5px;}
   }
 
   /* ============================= HABITS ============================= */
-  .habits-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:1.5rem clamp(1.5rem,4vw,3rem);align-items:start;}
-  .habits-side{display:flex;flex-direction:column;gap:1rem;}
-  .habit-list{display:flex;flex-direction:column;gap:.6rem;margin-bottom:1.1rem;}
-  .habit-row{display:flex;align-items:center;gap:.7rem;background:var(--bg-card);border:1px solid var(--border);padding:.55rem .6rem .55rem 1rem;border-radius:14px;transition:border-color .25s,background .25s;}
-  .habit-row:hover{background:var(--bg-card-hi);}
-  .habit-row:focus-within{border-color:var(--accent-line);}
-  .habit-swatch{width:9px;height:9px;border-radius:50%;flex-shrink:0;box-shadow:0 0 10px -1px currentColor;}
+  .habit-list{display:flex;flex-direction:column;gap:.7rem;margin-bottom:1.3rem;}
+  .habit-row{display:flex;align-items:center;gap:.6rem;background:var(--bg-card);border:1px solid var(--border);padding:.7rem 1rem;border-radius:12px;}
   /* Scoped as `.habit-row input.…` so these win over the generic input[type=…] field styles above. */
-  .habit-row input.habit-name{flex:1 1 auto;min-width:0;width:auto;background:transparent;border:none;padding:.3rem 0;}
+  .habit-row input.habit-name{flex:1 1 auto;min-width:0;width:auto;background:transparent;border:none;padding:.3rem 0;box-shadow:none;}
   .habit-row input.habit-name:focus{outline:none;box-shadow:none;}
   .habit-hours-wrap{display:flex;align-items:center;gap:.5rem;flex-shrink:0;}
-  .habit-row input.habit-hours{width:72px;background:rgba(244,244,240,0.04);border:1px solid var(--border);border-radius:9px;padding:.4rem .5rem;font-family:var(--font-mono);text-align:center;font-size:1rem;} /* 16px: smaller text makes iOS zoom the page on focus */
+  .habit-row input.habit-hours{width:72px;background:rgba(244,244,240,0.03);border:1px solid var(--border);border-radius:8px;padding:.4rem .5rem;font-family:var(--font-mono);text-align:center;font-size:1rem;} /* 16px: smaller text makes iOS zoom the page on focus */
   .habit-unit{font-size:.74rem;color:var(--text-dimmer);}
   .habit-remove{background:none;border:none;color:var(--text-dimmer);font-size:1.15rem;cursor:pointer;width:30px;height:30px;border-radius:50%;transition:all .2s;flex-shrink:0;}
   .habit-remove:hover{color:var(--red);background:rgba(255,106,106,0.1);}
-  .habit-warning{color:var(--amber);font-size:.84rem;margin:.9rem 0 0;}
-  .habit-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;}
+  .habit-warning{color:var(--amber);font-size:.84rem;margin:.4rem 0 0;}
+  .habit-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-top:.25rem;}
 
-  .day-card,.years-card{padding:1.3rem 1.4rem 1.45rem;}
-  .day-bar{display:flex;gap:2px;height:16px;border-radius:99px;overflow:hidden;background:rgba(244,244,240,0.04);}
-  .day-seg{height:100%;min-width:3px;}
-  .day-seg.free{background:repeating-linear-gradient(-45deg,rgba(244,244,240,0.11) 0 4px,transparent 4px 8px);}
-  .day-legend{display:flex;flex-wrap:wrap;gap:.5rem 1.1rem;margin-top:1rem;font-size:.78rem;color:var(--text-dim);}
-  .day-key{display:inline-flex;align-items:center;gap:.4rem;min-width:0;}
-  .day-key i{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-  .day-key b{font-family:var(--font-mono);font-weight:500;color:var(--text);}
-  .day-key.free i{background:repeating-linear-gradient(-45deg,rgba(244,244,240,0.45) 0 2px,transparent 2px 4px);}
-
-  .habit-chart{display:flex;flex-direction:column;gap:.95rem;}
-  .chart-row{display:grid;grid-template-columns:minmax(80px,120px) 1fr 62px;align-items:center;gap:.9rem;}
-  .chart-label{font-size:.82rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .chart-track{height:10px;background:rgba(244,244,240,0.05);border-radius:99px;overflow:hidden;}
-  .chart-fill{height:100%;background:linear-gradient(90deg,rgba(7,7,7,0.55),rgba(7,7,7,0)),var(--c,var(--accent));border-radius:99px;transition:width .8s var(--ease);width:0%;}
-  .chart-value{font-family:var(--font-mono);font-size:.8rem;text-align:right;color:var(--text);}
-  .chart-empty{color:var(--text-dimmer);font-size:.9rem;}
-  /* minmax(0,…) rather than 1fr: a text input's built-in width would otherwise stretch the column past the screen. */
-  @media (max-width:900px){
-    .habits-grid{grid-template-columns:minmax(0,1fr);}
-  }
+  .habit-chart{margin-top:2.75rem;display:flex;flex-direction:column;gap:1.05rem;}
+  .chart-row{display:grid;grid-template-columns:minmax(90px,140px) 1fr 64px;align-items:center;gap:1rem;}
+  .chart-label{font-size:.84rem;color:var(--text-dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .chart-track{height:9px;background:#0a0a0a;border:1px solid var(--border);border-radius:6px;overflow:hidden;box-shadow:inset 0 1px 2px rgba(0,0,0,0.7);}
+  .chart-fill{height:100%;background:linear-gradient(180deg,rgba(255,255,255,0.35),transparent 60%),linear-gradient(90deg,rgba(141,255,106,.35),var(--accent));border-radius:6px;transition:width 1s var(--ease);width:0%;box-shadow:0 0 12px -2px rgba(141,255,106,0.5);}
+  .chart-value{font-family:var(--font-mono);font-size:.82rem;text-align:right;color:var(--text-dim);}
+  .chart-empty{color:var(--text-dimmer);font-size:.9rem;margin-top:1rem;}
 
   /* ============================= WHAT IF ============================= */
-  .whatif-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,460px);gap:2.5rem clamp(2rem,5vw,4.5rem);align-items:center;}
   .whatif-controls{max-width:520px;}
-  .whatif-compare{display:flex;align-items:center;gap:.9rem;margin:1.5rem 0 1.4rem;}
-  .wc-item{flex:1;min-width:0;padding:.85rem 1rem;border:1px solid var(--border);border-radius:12px;background:var(--bg-card);}
-  .wc-item.target{border-color:var(--accent-line);background:var(--accent-soft);}
-  .wc-label{display:block;font-family:var(--font-mono);font-size:.6rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-dimmer);margin-bottom:.35rem;}
-  .wc-val{font-family:var(--font-mono);font-size:1.25rem;font-weight:600;font-variant-numeric:tabular-nums;}
-  .wc-val small{font-size:.66rem;font-weight:400;color:var(--text-dim);}
-  .wc-item.target .wc-val{color:var(--accent);}
-  .wc-arrow{color:var(--text-dimmer);font-size:1.1rem;}
-  .whatif-sleep{margin:1rem 0 0;}
-  .whatif-result{position:relative;overflow:hidden;padding:2.8rem 2rem 2.5rem;border-radius:24px;text-align:center;box-shadow:0 40px 90px -50px rgba(0,0,0,0.9);}
-  .whatif-result::before{content:'';position:absolute;left:50%;top:-55%;width:130%;aspect-ratio:1;transform:translateX(-50%);background:radial-gradient(circle,rgba(141,255,106,0.16),transparent 60%);pointer-events:none;}
-  .whatif-result > *{position:relative;}
-  .whatif-result .big-number{font-family:var(--font-mono);font-size:clamp(3.2rem,9vw,5.2rem);font-weight:700;line-height:1;letter-spacing:-.03em;background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent;font-variant-numeric:tabular-nums;}
-  .whatif-result .big-label{color:var(--text);margin-top:.7rem;font-size:1rem;font-weight:500;}
-  .whatif-result .sub-line{font-family:var(--font-mono);color:var(--text-dim);font-size:.8rem;margin:1.2rem auto 0;}
-  @media (max-width:860px){
-    .whatif-grid{grid-template-columns:minmax(0,1fr);}
-  }
+  .whatif-current{font-family:var(--font-mono);color:var(--text-dim);margin:1.1rem 0 .3rem;font-size:.92rem;}
+  .whatif-target-label{font-family:var(--font-mono);color:var(--accent);margin-top:.85rem;font-size:.92rem;}
+  .whatif-result{margin-top:2.6rem;padding:2.1rem;background:var(--bg-card);border:1px solid var(--border);border-radius:20px;text-align:center;max-width:480px;}
+  .whatif-result .big-number{font-family:var(--font-mono);font-size:clamp(2.8rem,9vw,4.6rem);font-weight:700;line-height:1;letter-spacing:-.02em;
+    background:linear-gradient(180deg,var(--accent-hi),var(--accent) 60%,var(--accent-lo));-webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 18px rgba(141,255,106,0.25));}
+  .whatif-result .big-label{color:var(--text-dim);margin-top:.4rem;font-size:.95rem;}
+  .whatif-result .sub-line{font-family:var(--font-mono);color:var(--text-dimmer);font-size:.82rem;margin-top:1.1rem;}
 
   /* ============================= FUTURE / MILESTONES ============================= */
-  .milestone-form{display:flex;gap:.75rem;margin:2rem 0 2.5rem;flex-wrap:wrap;max-width:780px;}
+  .milestone-form{display:flex;gap:.75rem;margin:2rem 0 2.25rem;flex-wrap:wrap;}
   .milestone-form input[type="text"]{flex:2;min-width:200px;}
   .milestone-form input[type="date"]{flex:1;min-width:150px;}
   .milestone-form button{flex-shrink:0;}
-  .milestone-list{position:relative;display:flex;flex-direction:column;max-width:780px;}
-  .milestone-list::before{content:'';position:absolute;left:7px;top:1.2rem;bottom:1.2rem;width:2px;border-radius:2px;background:var(--border-strong);}
-  .milestone-empty{color:var(--text-dimmer);font-size:.9rem;padding:.5rem 0 .5rem 2.25rem;}
-  .milestone-item{display:flex;align-items:center;gap:1rem;padding:.95rem 1rem .95rem 2.25rem;position:relative;border-radius:14px;transition:background .25s;}
-  .milestone-item:hover{background:rgba(244,244,240,0.03);}
-  .milestone-dot{width:12px;height:12px;border-radius:50%;background:var(--accent);position:absolute;left:2px;top:50%;margin-top:-6px;box-shadow:0 0 0 4px var(--bg),0 0 14px var(--accent-glow);}
-  .milestone-dot.past{background:var(--text-dimmer);box-shadow:0 0 0 4px var(--bg);}
-  .milestone-dot.today{background:var(--bg);border:2px solid var(--text);box-shadow:0 0 0 4px var(--bg),0 0 0 7px rgba(244,244,240,0.12);}
+  .milestone-list{display:flex;flex-direction:column;border-left:2px solid var(--border-strong);margin-left:6px;}
+  .milestone-empty{color:var(--text-dimmer);font-size:.9rem;padding:.5rem 0 .5rem 1.5rem;}
+  .milestone-item{display:flex;align-items:center;gap:1rem;padding:1.05rem .6rem 1.05rem 1.6rem;position:relative;border-radius:0 12px 12px 0;transition:background .35s var(--ease);}
+  .milestone-item:hover{background:linear-gradient(90deg,rgba(141,255,106,0.06),transparent 70%);}
+  .milestone-dot{width:10px;height:10px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px rgba(141,255,106,0.12),0 0 10px var(--accent-glow);position:absolute;left:-6px;transition:transform .35s var(--ease);}
+  .milestone-item:hover .milestone-dot{transform:scale(1.3);}
+  .milestone-dot.past{background:var(--text-dimmer);box-shadow:none;}
   .milestone-info{flex:1;min-width:0;}
   .milestone-name{font-size:1.03rem;font-weight:500;word-break:break-word;}
-  .milestone-item.is-past .milestone-name{color:var(--text-dim);}
-  .milestone-item.is-today .milestone-name{font-family:var(--font-mono);font-size:.68rem;font-weight:500;letter-spacing:.18em;text-transform:uppercase;}
-  .milestone-date{font-family:var(--font-mono);font-size:.76rem;color:var(--text-dim);margin-top:.2rem;}
-  .milestone-when{font-family:var(--font-mono);font-size:.68rem;padding:.3rem .7rem;border-radius:99px;border:1px solid var(--border-strong);color:var(--text-dim);white-space:nowrap;flex-shrink:0;}
-  .milestone-when.ahead{border-color:var(--accent-line);color:var(--accent);background:var(--accent-soft);}
+  .milestone-date{font-family:var(--font-mono);font-size:.78rem;color:var(--text-dim);margin-top:.2rem;}
   .milestone-remove{background:none;border:none;color:var(--text-dimmer);font-size:1.15rem;cursor:pointer;flex-shrink:0;width:30px;height:30px;border-radius:50%;transition:all .2s;}
   .milestone-remove:hover{color:var(--red);background:rgba(255,106,106,0.1);}
-  @media (max-width:520px){
-    .milestone-item{flex-wrap:wrap;gap:.4rem .8rem;}
-    .milestone-info{flex-basis:calc(100% - 46px);}
-    .milestone-when{order:3;}
-    .milestone-dot{top:1.75rem;}             /* line up with the name, now that the label wraps below */
-  }
 
   /* ============================= FINALE ============================= */
   .finale{text-align:center;align-items:center;}
-  .finale::before{
-    content:'';position:absolute;left:50%;top:50%;width:min(760px,95vw);aspect-ratio:1;transform:translate(-50%,-50%);
-    background:radial-gradient(circle,rgba(141,255,106,0.1),transparent 62%);pointer-events:none;z-index:-1;
-  }
-  /* "This week": the same glowing square as in the grid, sending out ripples. */
-  .finale-mark{width:20px;height:20px;border-radius:5px;background:var(--accent);box-shadow:0 0 26px var(--accent-glow);margin-bottom:2.6rem;position:relative;}
-  .finale-mark::before,.finale-mark::after{content:'';position:absolute;inset:-1px;border-radius:6px;border:1px solid var(--accent);animation:ripple 3s var(--ease) infinite;}
-  .finale-mark::after{animation-delay:1.5s;}
-  @keyframes ripple{from{transform:scale(1);opacity:.8;}to{transform:scale(3.4);opacity:0;}}
-  .finale h2{font-size:clamp(2.6rem,7.5vw,4.6rem);}
+  .finale h2{font-size:clamp(2.4rem,7vw,4.2rem);}
   .finale-text{color:var(--text-dim);margin:1.2rem 0 2.4rem;font-size:1.08rem;}
-  .finale-quote{margin-top:2.6rem;font-family:var(--font-display);font-size:clamp(1.2rem,2.6vw,1.5rem);color:var(--accent);max-width:560px;opacity:0;transform:translateY(10px);min-height:1.6em;text-wrap:balance;}
-  .finale-quote.show::before{content:'“';}
-  .finale-quote.show::after{content:'”';}
+  .finale-quote{margin-top:2.4rem;font-family:var(--font-display);font-size:1.3rem;color:var(--accent);max-width:520px;opacity:0;transform:translateY(10px);min-height:1.6em;}
   .finale-quote.show{animation:quoteIn .6s var(--ease) forwards;}
-  @keyframes quoteIn{to{opacity:1;transform:translateY(0);}}
+  @keyframes quoteIn{from{opacity:0;transform:translateY(10px);filter:blur(8px);}to{opacity:1;transform:translateY(0);filter:none;}}
 
-  footer{
-    text-align:center;padding:3rem 1.5rem calc(5rem + env(safe-area-inset-bottom));color:var(--text-dimmer);font-size:.76rem;
-    font-family:var(--font-mono);letter-spacing:.04em;display:flex;flex-direction:column;align-items:center;gap:.5rem;
-    max-width:1000px;margin:0 auto;border-top:1px solid var(--border);
-  }
-  .footer-mark{font-family:var(--font-display);font-size:1.3rem;font-weight:700;letter-spacing:-.02em;color:var(--text);margin-bottom:.35rem;}
-  .footer-mark span{color:var(--accent);}
+  footer{text-align:center;padding:3rem 1.5rem calc(5rem + env(safe-area-inset-bottom));color:var(--text-dimmer);font-size:.78rem;font-family:var(--font-mono);letter-spacing:.04em;display:flex;flex-direction:column;gap:.5rem;}
 
   .visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;}
+
+  /* =============================================================
+     PREMIUM LAYER
+     Texture, depth, light and motion on top of the styles above.
+     Nothing here moves anything: the layout is exactly the same.
+     ============================================================= */
+
+  /* ---- Texture ---- */
+  /* Ambient light: two soft pools of colour behind the page, drifting very slowly. */
+  body::before{
+    content:'';position:fixed;inset:-15%;z-index:-1;pointer-events:none;
+    background:
+      radial-gradient(38% 32% at 18% 14%,rgba(141,255,106,0.085),transparent 72%),
+      radial-gradient(34% 30% at 84% 86%,rgba(70,225,180,0.055),transparent 72%);
+    animation:drift 34s ease-in-out infinite alternate;
+  }
+  @keyframes drift{to{transform:translate3d(5%,-4%,0) scale(1.06);}}
+  /* Film grain over everything, very faint, so the black is never perfectly flat. */
+  body::after{content:'';position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.05;background:var(--grain) 0 0 / 200px 200px;}
+
+  /* ---- Surfaces and light ----
+     Cards are layered: a vertical gradient, an edge that is brighter along
+     the top, and a long soft shadow. With a mouse, a light follows the
+     pointer across them (--px / --py, written by setupPointerEffects) and
+     runs along their border; --light fades it in and out on hover. */
+  @property --light{syntax:'<number>';inherits:false;initial-value:0;}
+  .habit-row{
+    border-color:transparent;
+    background:
+      radial-gradient(380px circle at var(--px,50%) var(--py,50%),rgba(141,255,106,calc(var(--light,0) * .07)),transparent 65%) padding-box,
+      linear-gradient(180deg,var(--surface-top),var(--surface-bottom)) padding-box,
+      radial-gradient(200px circle at var(--px,50%) var(--py,50%),rgba(141,255,106,calc(var(--light,0) * .55)),transparent 70%) border-box,
+      linear-gradient(180deg,var(--edge),var(--edge-low)) border-box;
+    box-shadow:var(--shadow-card);
+    transition:--light .5s var(--ease),box-shadow .4s var(--ease);
+  }
+  .habit-row:focus-within{box-shadow:var(--shadow-card),0 0 0 1px rgba(141,255,106,0.4),0 0 0 5px var(--accent-soft);}
+  .stat-card{
+    background:
+      radial-gradient(320px circle at var(--px,50%) var(--py,50%),rgba(141,255,106,calc(var(--light,0) * .08)),transparent 65%),
+      linear-gradient(180deg,var(--surface-top),var(--surface-bottom));
+    transition:--light .5s var(--ease);
+  }
+  .life-stat-grid{box-shadow:var(--shadow-card);}
+  /* The weeks grid: a soft light under the squares follows the mouse, showing through the weeks ahead. */
+  .weeks-grid{
+    background:radial-gradient(260px circle at var(--px,50%) var(--py,50%),rgba(141,255,106,calc(var(--light,0) * .22)),transparent 70%);
+    transition:--light .6s var(--ease);
+  }
+  .week-dot{transition:transform .2s var(--ease),background-color .2s;}
+  /* What if: the result card is the signature piece. Green light from above,
+     a green top edge, and it leans towards the mouse (--rx / --ry). */
+  .whatif-result{
+    border-color:transparent;
+    background:
+      radial-gradient(420px circle at var(--px,50%) var(--py,50%),rgba(255,255,255,calc(var(--light,0) * .05)),transparent 60%) padding-box,
+      radial-gradient(90% 70% at 50% -12%,rgba(141,255,106,0.13),transparent 70%) padding-box,
+      linear-gradient(180deg,#171717,#0b0b0b) padding-box,
+      radial-gradient(260px circle at var(--px,50%) var(--py,50%),rgba(141,255,106,calc(var(--light,0) * .7)),transparent 70%) border-box,
+      linear-gradient(180deg,rgba(141,255,106,0.38),var(--edge-low) 65%) border-box;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.05),0 30px 60px -30px rgba(0,0,0,1),0 0 60px -30px rgba(141,255,106,0.35);
+    transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));
+    transition:--light .5s var(--ease),transform .8s var(--ease);
+  }
+  .whatif-result:hover{transition:--light .5s var(--ease),transform .15s linear;}
+  :is(.habit-row,.stat-card,.weeks-grid,.whatif-result):hover{--light:1;}
+
+  /* ---- Lists: items arrive and leave smoothly (see the add / remove handlers) ---- */
+  .enter{animation:itemIn .55s var(--ease) both;}
+  .leaving{animation:itemOut .32s var(--ease) forwards;pointer-events:none;}
+  @keyframes itemIn{from{opacity:0;translate:0 -8px;scale:.98;filter:blur(4px);}}
+  @keyframes itemOut{to{opacity:0;translate:16px 0;scale:.98;filter:blur(3px);}}
+
+  /* ---- Scrollbar (WebKit / Blink; Firefox uses scrollbar-color on html) ---- */
+  ::-webkit-scrollbar{width:10px;height:10px;}
+  ::-webkit-scrollbar-track{background:transparent;}
+  ::-webkit-scrollbar-thumb{background:rgba(244,244,240,0.14);border-radius:99px;border:3px solid var(--bg);}
+  ::-webkit-scrollbar-thumb:hover{background:rgba(244,244,240,0.24);}
 </style>
 </head>
 <body>
@@ -521,36 +429,17 @@
 <noscript>UNTIL needs JavaScript to run. Please enable it in your browser.</noscript>
 
 <div class="progress-bar" id="progressBar"></div>
-<div class="spotlight" id="spotlight" aria-hidden="true"></div>
 <button class="reset-btn" id="resetBtn" type="button" title="Reset all data" aria-label="Reset all saved data">↺</button>
 <div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>
-<!-- Section rail: filled in by renderRail(), shown on wide screens only. -->
-<nav class="rail" id="rail" aria-label="Sections"></nav>
 
 <!-- 1. HERO -->
-<section class="section hero" id="hero" data-nav="Start">
-  <div class="hero-grid">
-    <div class="hero-content">
-      <span class="eyebrow">TIME, VISUALIZED</span>
-      <!-- The letters arrive one by one (see .hero-title .ch); screen readers get the plain word from aria-label. -->
-      <h1 class="hero-title" aria-label="UNTIL."><span class="ch" aria-hidden="true" style="--d:0">U</span><span class="ch" aria-hidden="true" style="--d:1">N</span><span class="ch" aria-hidden="true" style="--d:2">T</span><span class="ch" aria-hidden="true" style="--d:3">I</span><span class="ch" aria-hidden="true" style="--d:4">L</span><span class="dot" aria-hidden="true">.</span></h1>
-      <p class="hero-tagline">You don't have forever.</p>
-      <p class="hero-subtitle">Visualize the time you've lived, the time you may have left, and what you're doing with it.</p>
-      <div class="hero-actions">
-        <button class="btn btn-primary" id="ctaStart" type="button">Calculate my time <span class="arrow">→</span></button>
-        <span class="hero-note">No sign-up · stays on your device</span>
-      </div>
-    </div>
-    <!-- The life galaxy: one point of light per week of the chosen lifespan, spiralling out from birth (see initGalaxy).
-         Decorative; the same numbers are in the sections below. -->
-    <div class="hero-visual" aria-hidden="true">
-      <canvas class="galaxy" id="galaxy"></canvas>
-      <div class="ring-center">
-        <span class="ring-num" id="heroRingNum">4,160</span>
-        <span class="ring-cap" id="heroRingCap">weeks in an 80-year life</span>
-      </div>
-      <div class="galaxy-tip" id="galaxyTip"></div>
-    </div>
+<section class="section hero" id="hero">
+  <div class="hero-content">
+    <span class="eyebrow">TIME, VISUALIZED</span>
+    <h1 class="hero-title">UNTIL<span class="dot">.</span></h1>
+    <p class="hero-tagline">You don't have forever.</p>
+    <p class="hero-subtitle">Visualize the time you've lived, the time you may have left, and what you're doing with it.</p>
+    <button class="btn btn-primary" id="ctaStart" type="button">Calculate my time <span class="arrow">→</span></button>
   </div>
   <div class="scroll-hint" aria-hidden="true">
     <span>SCROLL TO BEGIN</span>
@@ -559,74 +448,35 @@
 </section>
 
 <!-- 2. SETUP -->
-<section class="section setup" id="setup" data-nav="You">
-  <div class="setup-grid">
-    <div class="setup-inner">
-      <span class="eyebrow">YOUR STARTING POINT</span>
-      <h2>Tell UNTIL about your time.</h2>
-      <div class="field">
-        <label for="birthDate">Date of birth</label>
-        <input type="date" id="birthDate" name="birthDate">
-      </div>
-      <div class="field">
-        <label for="lifeExpectancy">Estimated life expectancy — <span class="field-value" id="lifeExpectancyValue">80</span> years</label>
-        <input type="range" id="lifeExpectancy" name="lifeExpectancy" min="50" max="110" step="1" value="80">
-      </div>
-      <p class="disclaimer">This isn't a prediction of when you'll die — it's a visualization based on the life expectancy you choose. Change it any time and recalculate.</p>
-      <button class="btn btn-primary" id="ctaShow" type="button">Show my life <span class="arrow">→</span></button>
-      <p class="error-msg" id="setupError" hidden></p>
+<section class="section setup" id="setup">
+  <div class="setup-inner">
+    <span class="eyebrow">YOUR STARTING POINT</span>
+    <h2>Tell UNTIL about your time.</h2>
+    <div class="field">
+      <label for="birthDate">Date of birth</label>
+      <input type="date" id="birthDate" name="birthDate">
     </div>
-    <!-- Live preview of the weeks grid, updated as the form changes (see renderSetupPreview). -->
-    <aside class="setup-preview card" aria-hidden="true">
-      <div class="preview-head"><span>Preview</span><span><b id="previewYears">80</b> years · <b id="previewWeeks">4,160</b> weeks</span></div>
-      <div class="preview-grid" id="previewGrid">
-        <div class="pv-lived"></div>
-        <div class="pv-row"></div>
-      </div>
-      <p class="preview-foot">Each dot is one week. Each row, one year.</p>
-    </aside>
+    <div class="field">
+      <label for="lifeExpectancy">Estimated life expectancy — <span class="field-value" id="lifeExpectancyValue">80</span> years</label>
+      <input type="range" id="lifeExpectancy" name="lifeExpectancy" min="50" max="110" step="1" value="80">
+    </div>
+    <p class="disclaimer">This isn't a prediction of when you'll die — it's a visualization based on the life expectancy you choose. Change it any time and recalculate.</p>
+    <button class="btn btn-primary" id="ctaShow" type="button">Show my life <span class="arrow">→</span></button>
+    <p class="error-msg" id="setupError" hidden></p>
   </div>
 </section>
 
 <!-- 3. YOUR LIFE -->
-<section class="section your-life" id="yourLife" data-nav="Your life" hidden>
-  <div class="life-top">
-    <div class="life-numbers">
-      <div class="life-stat-main">
-        <span class="eyebrow">YOU ARE</span>
-        <div class="big-stat"><span id="ageYears">0</span><span class="unit">years</span><span id="ageMonths">0</span><span class="unit">months</span></div>
-      </div>
-      <div class="life-stat-main">
-        <span class="eyebrow">ESTIMATED TIME REMAINING</span>
-        <div class="big-stat accent"><span class="num" id="weeksRemainingNum">0</span><span class="unit">weeks</span></div>
-        <p class="basis-note">Based on an estimated life expectancy of <span id="basisLE">80</span> years — a perspective, not a prediction.</p>
-        <p class="surpassed-note" id="surpassedNote" hidden>You've already surpassed the estimate you chose. Every day now is extra time — feel free to raise the number above and recalculate.</p>
-      </div>
-    </div>
-    <!-- Share of the chosen lifespan already lived, as a ring (see renderYourLife). -->
-    <div class="life-gauge" aria-hidden="true">
-      <svg class="gauge" viewBox="0 0 240 240">
-        <defs>
-          <linearGradient id="gaugeGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop class="gauge-stop-a" offset="0"/>
-            <stop class="gauge-stop-b" offset="1"/>
-          </linearGradient>
-        </defs>
-        <circle class="gauge-track" cx="120" cy="120" r="100"/>
-        <circle class="gauge-inner" cx="120" cy="120" r="80"/>
-        <circle class="gauge-arc" id="gaugeArc" cx="120" cy="120" r="100"/>
-      </svg>
-      <div class="gauge-center">
-        <span class="gauge-num" id="gaugePct">0%</span>
-        <span class="gauge-cap">of your <span id="gaugeLE">80</span> years lived</span>
-      </div>
-    </div>
+<section class="section your-life reveal" id="yourLife" hidden>
+  <div class="life-stat-main">
+    <span class="eyebrow">YOU ARE</span>
+    <div class="big-stat"><span id="ageYears">0</span><span class="unit">years</span>, <span id="ageMonths">0</span><span class="unit">months</span></div>
   </div>
-  <!-- Seconds alive, counting live (see startLiveClock). Not announced to screen readers: it changes 60 times a second. -->
-  <div class="live-clock" aria-hidden="true">
-    <span class="live-label"><i class="live-dot"></i>Live · seconds you've been alive</span>
-    <span class="live-num" id="liveSeconds">0</span>
-    <span class="live-sub" id="liveSub"></span>
+  <div class="life-stat-main">
+    <span class="eyebrow">ESTIMATED TIME REMAINING</span>
+    <div class="big-stat"><span id="weeksRemainingNum">0</span><span class="unit">weeks</span></div>
+    <p class="basis-note">Based on an estimated life expectancy of <span id="basisLE">80</span> years — a perspective, not a prediction.</p>
+    <p class="surpassed-note" id="surpassedNote" hidden>You've already surpassed the estimate you chose. Every day now is extra time — feel free to raise the number above and recalculate.</p>
   </div>
   <div class="life-stat-grid">
     <div class="stat-card"><span class="stat-label">Weeks lived</span><span class="stat-value" id="weeksLivedNum">0</span></div>
@@ -637,81 +487,55 @@
 </section>
 
 <!-- 4. LIFE IN WEEKS -->
-<section class="section weeks reveal" id="lifeInWeeks" data-nav="Weeks" hidden>
+<section class="section weeks reveal" id="lifeInWeeks" hidden>
   <span class="eyebrow">EVERY DOT = ONE WEEK</span>
   <h2>Your life in weeks.</h2>
   <p class="lede">Each row is a year. Each square, a week. Hover or tap a square to see when it falls.</p>
-  <div class="weeks-head">
-    <div class="weeks-legend">
-      <div class="legend-item"><span class="legend-dot past"></span>Lived</div>
-      <div class="legend-item"><span class="legend-dot current"></span>This week</div>
-      <div class="legend-item"><span class="legend-dot future"></span>Ahead</div>
-    </div>
-    <span class="weeks-scale">1 row = 1 year · 52 weeks</span>
+  <div class="weeks-legend">
+    <div class="legend-item"><span class="legend-dot past"></span>Lived</div>
+    <div class="legend-item"><span class="legend-dot current"></span>This week</div>
+    <div class="legend-item"><span class="legend-dot future"></span>Ahead</div>
   </div>
-  <div class="weeks-frame" id="weeksFrame">
-    <div class="weeks-axis" id="weeksAxis" aria-hidden="true"></div>
-    <div class="weeks-grid" id="weeksGrid" role="img" aria-label="Grid of the weeks of your life"></div>
-    <div class="weeks-now" id="weeksNow" aria-hidden="true" hidden></div>
-  </div>
+  <div class="weeks-grid" id="weeksGrid" role="img" aria-label="Grid of the weeks of your life"></div>
 </section>
 
 <!-- 5. WHERE DOES YOUR TIME GO -->
-<section class="section habits reveal" id="timeGoes" data-nav="Habits" hidden>
+<section class="section habits reveal" id="timeGoes" hidden>
   <span class="eyebrow">WHERE DOES YOUR TIME GO?</span>
   <h2>Small habits. Huge numbers.</h2>
   <p class="lede">Tell UNTIL roughly how many hours a day you spend on the things that matter. It turns habits into years.</p>
-  <div class="habits-grid">
-    <div class="habits-main">
-      <div class="habit-list" id="habitList"></div>
-      <div class="habit-actions">
-        <button class="btn btn-ghost" id="addHabit" type="button">+ Add activity</button>
-      </div>
-      <p class="habit-warning" id="habitWarning" hidden></p>
-    </div>
-    <div class="habits-side">
-      <div class="day-card card">
-        <div class="card-head"><span class="card-title">Your 24 hours</span><span class="card-meta" id="dayTotal"></span></div>
-        <div class="day-bar" id="dayBar" role="img" aria-label="How your day is split"></div>
-        <div class="day-legend" id="dayLegend"></div>
-      </div>
-      <div class="years-card card">
-        <div class="card-head"><span class="card-title">Over a lifetime</span><span class="card-meta" id="yearsMeta"></span></div>
-        <div class="habit-chart" id="habitChart"></div>
-        <p class="chart-empty" id="habitChartEmpty" hidden>Add an activity to see it turned into years.</p>
-      </div>
-    </div>
+  <div class="habit-list" id="habitList"></div>
+  <div class="habit-actions">
+    <button class="btn btn-ghost" id="addHabit" type="button">+ Add activity</button>
   </div>
+  <p class="habit-warning" id="habitWarning" hidden></p>
+  <div class="habit-chart" id="habitChart"></div>
+  <p class="chart-empty" id="habitChartEmpty" hidden>Add an activity above to see it turned into years.</p>
 </section>
 
 <!-- 6. WHAT IF -->
-<section class="section whatif reveal" id="whatIf" data-nav="What if" hidden>
+<section class="section whatif reveal" id="whatIf" hidden>
   <span class="eyebrow">WHAT IF?</span>
   <h2>What if you gave your time back?</h2>
   <p class="lede">Pick a habit above, and see what happens if you gave some of that time back to yourself, starting today.</p>
-  <div class="whatif-grid">
-    <div class="whatif-controls">
-      <label for="whatIfSelect" class="field-label">Activity</label>
-      <select id="whatIfSelect"></select>
-      <div class="whatif-compare">
-        <div class="wc-item"><span class="wc-label">Now</span><span class="wc-val"><span id="whatIfCurrent">—</span><small> h/day</small></span></div>
-        <span class="wc-arrow" aria-hidden="true">→</span>
-        <div class="wc-item target"><span class="wc-label">New target</span><span class="wc-val"><span id="whatIfTargetValue">0</span><small> h/day</small></span></div>
-      </div>
-      <label for="whatIfTarget" class="visually-hidden">New target hours per day</label>
-      <input type="range" id="whatIfTarget" min="0" max="24" step="0.25" value="0">
-      <p class="disclaimer whatif-sleep" id="whatIfSleepNote" hidden>UNTIL won't suggest sleeping less than 7 hours — losing sleep costs more than it gives back.</p>
-    </div>
-    <div class="whatif-result card">
-      <div class="big-number" id="whatIfYears">0.0</div>
-      <div class="big-label">years gained</div>
-      <div class="sub-line" id="whatIfHours">Add an activity above to get started.</div>
-    </div>
+  <div class="whatif-controls">
+    <label for="whatIfSelect" class="visually-hidden">Choose an activity</label>
+    <select id="whatIfSelect"></select>
+    <div class="whatif-current">Current: <span id="whatIfCurrent">—</span> hours/day</div>
+    <label for="whatIfTarget" class="visually-hidden">New target hours per day</label>
+    <input type="range" id="whatIfTarget" min="0" max="24" step="0.25" value="0">
+    <div class="whatif-target-label">New target: <span id="whatIfTargetValue">0</span> hours/day</div>
+    <p class="disclaimer" id="whatIfSleepNote" hidden style="margin:0.75rem 0 0;">UNTIL won't suggest sleeping less than 7 hours — losing sleep costs more than it gives back.</p>
+  </div>
+  <div class="whatif-result">
+    <div class="big-number" id="whatIfYears">0.0</div>
+    <div class="big-label">years gained</div>
+    <div class="sub-line" id="whatIfHours">Add an activity above to get started.</div>
   </div>
 </section>
 
 <!-- 7. YOUR FUTURE -->
-<section class="section future reveal" id="yourFuture" data-nav="Future" hidden>
+<section class="section future reveal" id="yourFuture" hidden>
   <span class="eyebrow">YOUR FUTURE</span>
   <h2>Don't just count time. Give it somewhere to go.</h2>
   <p class="lede">Add the milestones you're working toward. Watch them take their place on your timeline.</p>
@@ -726,8 +550,7 @@
 </section>
 
 <!-- 8. MAKE TODAY COUNT -->
-<section class="section finale" id="finale" data-nav="Today" hidden>
-  <div class="finale-mark" aria-hidden="true"></div>
+<section class="section finale reveal" id="finale" hidden>
   <h2>Make today count.</h2>
   <p class="finale-text">Your future is not a number. It's a collection of choices.</p>
   <button class="btn btn-primary" id="ctaFinale" type="button">Make today count <span class="arrow">→</span></button>
@@ -735,8 +558,7 @@
 </section>
 
 <footer>
-  <span class="footer-mark">UNTIL<span>.</span></span>
-  <span>You don't have forever.</span>
+  <span>UNTIL — You don't have forever.</span>
   <span>Your data stays on this device — the only outside request is for fonts (Google Fonts).</span>
 </footer>
 
@@ -1065,15 +887,10 @@
   /** Rounds and formats a number with thousands separators, e.g. 3200 → "3,200". */
   function fmtInt(v){ return Math.round(v).toLocaleString('en-US'); }
 
-  /** Hours without trailing zeros: 8 → "8", 2.5 → "2.5", 2.25 → "2.25". */
-  function fmtHours(h){ return String(Math.round(h * 100) / 100); }
-
-  /* ============================= VISUAL HELPERS ============================= */
-
   /**
-   * Paints the filled part of a range slider. CSS draws the track as a
-   * gradient that stops at --fill, so the bar left of the thumb is lit;
-   * this keeps --fill in sync with the slider's value, min and max.
+   * Lights the part of a range slider left of its thumb: CSS draws the track
+   * as a gradient that stops at --fill, and this keeps --fill in step with
+   * the slider's value, min and max.
    * @param {HTMLInputElement} el
    */
   function paintRange(el){
@@ -1083,338 +900,25 @@
     el.style.setProperty('--fill', Math.max(0, Math.min(100, pct)) + '%');
   }
 
-  /**
-   * Colour of the n-th activity, shared by its swatch, its slice of the
-   * 24-hour bar and its bar in the lifetime chart. Colours are assigned in
-   * list order from the --h1…--h8 tokens and repeat after eight.
-   * @param {number} index - position in state.activities
-   * @returns {string} a CSS colour value
-   */
-  function habitColor(index){ return 'var(--h' + (index % 8 + 1) + ')'; }
-
-  /** Reads a colour token from the stylesheet, so the canvas uses the same palette as the page. */
-  function cssColor(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-
-  /** '#8DFF6A' → [141, 255, 106]. */
-  function hexRgb(hex){
-    var n = parseInt(hex.replace('#', ''), 16);
-    return [n >> 16 & 255, n >> 8 & 255, n & 255];
-  }
-
-  var galaxy = null;      // set by initGalaxy: { setStats(stats) }
-
-  /**
-   * The life galaxy in the hero: one point of light per week of the chosen
-   * lifespan, laid out on a sunflower spiral (each point turned by the
-   * golden angle from the one before, at a radius that grows with the square
-   * root of its index, so they spread evenly). Birth is at the centre; the
-   * most recent weeks are on the outer edge.
-   *  - Before a date of birth is known, a wave of light ripples outwards
-   *    through the weeks, from birth to the edge, over and over.
-   *  - Afterwards the weeks already lived glow (the most recent ones a little
-   *    brighter), this week pulses, and the weeks ahead stay dim.
-   *  - The spiral turns slowly. Points near the pointer drift away from it
-   *    and brighten, and hovering one shows which week it is.
-   * Drawn on a canvas: SVG would need several thousand elements. It is only
-   * animated while on screen, and drawn once, still, with reduced motion.
-   */
-  function initGalaxy(){
-    var canvas = $('galaxy');
-    if(!canvas || !canvas.getContext) return;
-    var ctx = canvas.getContext('2d');
-    var tip = $('galaxyTip');
-    var GOLDEN = Math.PI * (3 - Math.sqrt(5));             // ≈ 137.5°, the golden angle
-    var col = { accent:hexRgb(cssColor('--accent')), teal:hexRgb(cssColor('--accent-2')), text:hexRgb(cssColor('--text')) };
-    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var size = 0, n = 0, stats = null;
-    var angle = 0, rafId = null, lastTime = 0, onScreen = true, startTime = performance.now();
-    var mouse = null, hover = -1;
-    var baseR = new Float32Array(0), baseA = new Float32Array(0), shift = new Float32Array(0);
-
-    var HOLE = 0.4;      // the empty centre, as a share of the radius: room for the number
-
-    /**
-     * Lays out one point per week of the current life expectancy. Radii are
-     * spread so that the points fill the ring between the hole and the edge
-     * evenly: r² grows in equal steps from HOLE² to 1.
-     */
-    function layout(){
-      n = state.lifeExpectancy * WEEKS_PER_ROW;
-      baseR = new Float32Array(n); baseA = new Float32Array(n); shift = new Float32Array(n * 2);
-      for(var i = 0; i < n; i++){
-        baseR[i] = Math.sqrt(HOLE * HOLE + (1 - HOLE * HOLE) * (i + 0.5) / n);
-        baseA[i] = i * GOLDEN;
-      }
-    }
-
-    /** Matches the canvas resolution to its size on screen (sharp on high-density displays). */
-    function resize(){
-      var w = canvas.clientWidth;
-      if(!w) return;
-      var dpr = Math.min(2, window.devicePixelRatio || 1);
-      size = w;
-      canvas.width = Math.round(w * dpr);
-      canvas.height = Math.round(w * dpr);
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-      draw(performance.now());
-    }
-
-    /** "rgba(r,g,b,a)" from a colour triple. */
-    function rgba(c, a){ return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a.toFixed(3) + ')'; }
-
-    /** Paints one frame at time `now` (ms). */
-    function draw(now){
-      if(!size) return;
-      var c = size / 2, R = size / 2 - 8;
-      var dot = Math.max(1.1, Math.min(2.2, R / Math.sqrt(n) * 0.62));   // point size from the spacing
-      var current = stats ? (stats.surpassed ? n : stats.currentWeekIndex) : -1;
-      var wave = HOLE - 0.08 + ((now - startTime) / 5200) % 1 * (1.16 - HOLE);   // idle ripple radius, hole → edge
-      ctx.clearRect(0, 0, size, size);
-
-      // A faint halo behind the lived part of the spiral.
-      if(stats && current > 0){
-        var reach = baseR[Math.min(n, current) - 1] * R;
-        var g = ctx.createRadialGradient(c, c, 0, c, c, reach + 30);
-        g.addColorStop(0, rgba(col.accent, 0.14));
-        g.addColorStop(1, rgba(col.accent, 0));
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(c, c, reach + 30, 0, 2 * Math.PI); ctx.fill();
-      }
-
-      for(var i = 0; i < n; i++){
-        var a = baseA[i] + angle, r = baseR[i] * R;
-        var x = c + Math.cos(a) * r, y = c + Math.sin(a) * r;
-        // Points near the pointer drift away and light up; they ease back when it leaves.
-        var dx = 0, dy = 0, near = 0;
-        if(mouse){
-          var mx = x - mouse[0], my = y - mouse[1], d2 = mx * mx + my * my;
-          if(d2 < 3600){
-            var d = Math.sqrt(d2) || 1, f = (1 - d / 60);
-            near = f;
-            dx = mx / d * f * 14; dy = my / d * f * 14;
-          }
-        }
-        shift[i * 2] += (dx - shift[i * 2]) * 0.18;
-        shift[i * 2 + 1] += (dy - shift[i * 2 + 1]) * 0.18;
-        x += shift[i * 2]; y += shift[i * 2 + 1];
-
-        var color, alpha, s = dot;
-        if(!stats){
-          // Idle: a ring of light travels outwards through the weeks.
-          var k = baseR[i] - wave;
-          var pulse = Math.max(0, 1 - Math.abs(k) * 9);
-          color = pulse > 0.05 ? col.accent : col.text;
-          alpha = 0.16 + pulse * 0.75;
-          s = dot * (1 + pulse * 0.5);
-        } else if(i < current){
-          var recent = Math.max(0, 1 - (current - i) / (WEEKS_PER_ROW * 3));   // the last three years shine a little brighter
-          color = recent > 0 ? col.accent : col.text;
-          alpha = recent > 0 ? 0.5 + recent * 0.45 : 0.55;
-        } else if(i === current){
-          continue;            // drawn last, on top
-        } else {
-          color = col.text; alpha = 0.12;
-        }
-        if(near > 0){ alpha = Math.min(1, alpha + near * 0.6); s = dot * (1 + near * 0.8); }
-        if(i === hover){ color = col.accent; alpha = 1; s = dot * 2.2; }
-        ctx.fillStyle = rgba(color, alpha);
-        ctx.fillRect(x - s / 2, y - s / 2, s, s);
-      }
-
-      // This week: a bright point with a breathing glow.
-      if(stats && !stats.surpassed && current >= 0 && current < n){
-        var ca = baseA[current] + angle, cr = baseR[current] * R;
-        var cx = c + Math.cos(ca) * cr + shift[current * 2], cy = c + Math.sin(ca) * cr + shift[current * 2 + 1];
-        var breath = still ? 0.6 : 0.5 + 0.5 * Math.sin(now / 420);
-        var glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 16);
-        glow.addColorStop(0, rgba(col.accent, 0.55 + breath * 0.35));
-        glow.addColorStop(1, rgba(col.accent, 0));
-        ctx.fillStyle = glow;
-        ctx.beginPath(); ctx.arc(cx, cy, 16, 0, 2 * Math.PI); ctx.fill();
-        ctx.fillStyle = rgba(col.accent, 1);
-        ctx.beginPath(); ctx.arc(cx, cy, dot * 1.6, 0, 2 * Math.PI); ctx.fill();
-      }
-    }
-
-    function frame(now){
-      rafId = null;
-      var dt = lastTime ? Math.min(50, now - lastTime) : 16;
-      lastTime = now;
-      if(!still) angle += dt * 0.000035;          // one turn every ~3 minutes
-      draw(now);
-      if(onScreen && !still) rafId = requestAnimationFrame(frame);
-    }
-    function kick(){
-      if(rafId) return;
-      lastTime = 0;
-      rafId = requestAnimationFrame(frame);
-    }
-
-    /** The week under the pointer: the nearest point within a few pixels, or -1. */
-    function weekAt(px, py){
-      var c = size / 2, R = size / 2 - 8, best = -1, bestD = 64;
-      for(var i = 0; i < n; i++){
-        var a = baseA[i] + angle, r = baseR[i] * R;
-        var x = c + Math.cos(a) * r + shift[i * 2] - px, y = c + Math.sin(a) * r + shift[i * 2 + 1] - py;
-        var d2 = x * x + y * y;
-        if(d2 < bestD){ bestD = d2; best = i; }
-      }
-      return best;
-    }
-
-    canvas.addEventListener('pointermove', function(e){
-      if(e.pointerType !== 'mouse') return;
-      var rect = canvas.getBoundingClientRect();
-      var px = e.clientX - rect.left, py = e.clientY - rect.top;
-      mouse = [px, py];
-      hover = weekAt(px, py);
-      if(hover >= 0){
-        var year = Math.floor(hover / WEEKS_PER_ROW), week = hover % WEEKS_PER_ROW + 1;
-        tip.textContent = stats ? weekTooltipText(hover) : 'Year ' + (year + 1) + ' · week ' + week;
-        tip.style.left = px + 'px';
-        tip.style.top = py + 'px';
-        tip.classList.add('show');
-      } else {
-        tip.classList.remove('show');
-      }
-      if(still) draw(performance.now()); else kick();
-    });
-    canvas.addEventListener('pointerleave', function(){
-      mouse = null; hover = -1;
-      tip.classList.remove('show');
-      if(still) draw(performance.now()); else kick();
-    });
-
-    if('IntersectionObserver' in window){
-      new IntersectionObserver(function(entries){
-        onScreen = entries[0].isIntersecting;
-        if(onScreen) kick();
-      }).observe(canvas);
-    }
-    var resizeTimer = null;
-    window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 120); });
-    layout();
-    resize();
-    kick();
-    galaxy = {
-      /** Shows the user's own life (or the idle wave when stats is null), re-laid out for the current lifespan. */
-      setStats:function(s){ stats = s; layout(); draw(performance.now()); kick(); }
-    };
-  }
-
-  var liveClock = null;   // { el, birth, running } once startLiveClock has run
-
-  /**
-   * The live counter under "You are": seconds since midnight on the day you
-   * were born, with tenths ticking. Underneath, the next billion-second
-   * birthday (1 billion seconds is about 31.7 years) or, past three billion,
-   * the last one. Updated each animation frame while on screen, about once
-   * a second with reduced motion; never announced to screen readers.
-   */
-  function startLiveClock(){
-    var birth = parseIsoDate(state.birthDate);
-    var el = $('liveSeconds');
-    var sec = (Date.now() - birth.getTime()) / 1000;
-    var marks = [1e9, 2e9, 3e9];
-    var next = marks.filter(function(m){ return m > sec; })[0];
-    var sub;
-    if(next){
-      var when = new Date(birth.getTime() + next * 1000);
-      sub = 'You turn ' + (next / 1e9) + ' billion seconds old on ' + when.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) + '.';
-    } else {
-      sub = 'You passed 3 billion seconds on ' + new Date(birth.getTime() + 3e12).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) + '.';
-    }
-    $('liveSub').textContent = sub;
-
-    if(liveClock){ liveClock.birth = birth; return; }
-    liveClock = { birth:birth, onScreen:true };
-    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    var last = 0;
-    function paint(){
-      var s = Math.max(0, (Date.now() - liveClock.birth.getTime()) / 1000);
-      el.innerHTML = fmtInt(Math.floor(s)) + '<small>.' + Math.floor(s * 10 % 10) + '</small>';
-    }
-    function tick(now){
-      if(now - last > 90){ paint(); last = now; }
-      if(liveClock.onScreen) requestAnimationFrame(tick);
-    }
-    paint();
-    if(reduced){ setInterval(paint, 1000); return; }
-    if('IntersectionObserver' in window){
-      new IntersectionObserver(function(entries){
-        var was = liveClock.onScreen;
-        liveClock.onScreen = entries[0].isIntersecting;
-        if(liveClock.onScreen && !was) requestAnimationFrame(tick);
-      }).observe(el);
-    }
-    requestAnimationFrame(tick);
+  /** True when the user has asked their system for reduced motion. */
+  function prefersReducedMotion(){
+    return !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
   }
 
   /**
-   * Updates the hero: the galaxy and the number at its centre.
-   * @param {object|null} stats - result of computeLifeStats(), or null
+   * Plays the leaving animation on a list item (.leaving), then calls `done`
+   * (which removes it from the state and re-renders). Straight away with
+   * reduced motion; a timer makes sure `done` runs even if no animation does.
+   * @param {Element|null} el
+   * @param {function} done
    */
-  function renderHeroRing(stats){
-    var years = state.lifeExpectancy;
-    if(galaxy) galaxy.setStats(stats);
-
-    var numEl = $('heroRingNum'), capEl = $('heroRingCap');
-    if(!stats){
-      numEl.textContent = fmtInt(years * WEEKS_PER_ROW);
-      capEl.textContent = 'weeks in ' + (/^8/.test(String(years)) ? 'an ' : 'a ') + years + '-year life';
-    } else if(stats.surpassed){
-      numEl.textContent = fmtInt(stats.weeksLived);
-      capEl.textContent = 'weeks lived, and counting';
-    } else {
-      numEl.textContent = fmtInt(stats.weeksRemaining);
-      capEl.textContent = 'of your ' + fmtInt(stats.totalWeeks) + ' weeks still ahead';
-    }
-  }
-
-  /**
-   * The small "life in weeks" preview next to the setup form. It is drawn
-   * entirely with repeating CSS dot patterns: this only sets how many rows
-   * there are and, once a valid date of birth is typed, how much is lived.
-   */
-  function renderSetupPreview(){
-    var le = Math.round(num($('lifeExpectancy').value, LIMITS.lifeExpectancy[0], LIMITS.lifeExpectancy[1], 80));
-    var grid = $('previewGrid');
-    $('previewYears').textContent = le;
-    $('previewWeeks').textContent = fmtInt(le * WEEKS_PER_ROW);
-    var lived = 0, partial = 0, showNow = false;
-    var b = $('birthDate').value;
-    if(isIsoDate(b) && b <= todayIso()){
-      var s = computeLifeStats(b, le);
-      if(s.age.years <= LIMITS.maxAge){
-        lived = Math.min(le, s.age.years);
-        partial = s.surpassed ? 0 : (s.currentWeekIndex % WEEKS_PER_ROW) / WEEKS_PER_ROW;
-        showNow = !s.surpassed;
-      }
-    }
-    grid.style.setProperty('--rows', le);
-    grid.style.setProperty('--lived', lived);
-    grid.style.setProperty('--partial', partial);
-    grid.classList.toggle('has-date', showNow);
-  }
-
-  /**
-   * "in 1 yr 8 mo", "3 yrs ago", "today": how far a date is from today,
-   * counted in calendar years and months (in days when under a month).
-   * @param {string} iso - 'YYYY-MM-DD'
-   * @returns {string}
-   */
-  function relativeLabel(iso){
-    var today = todayIso();
-    if(iso === today) return 'today';
-    var ahead = iso > today;
-    var d = getAgeBreakdown(parseIsoDate(ahead ? today : iso), parseIsoDate(ahead ? iso : today));
-    var text;
-    if(d.years || d.months){
-      text = [d.years ? d.years + (d.years === 1 ? ' yr' : ' yrs') : '', d.months ? d.months + ' mo' : ''].filter(Boolean).join(' ');
-    } else {
-      text = d.days + (d.days === 1 ? ' day' : ' days');
-    }
-    return ahead ? 'in ' + text : text + ' ago';
+  function leave(el, done){
+    var finished = false;
+    function finish(){ if(!finished){ finished = true; done(); } }
+    if(!el || prefersReducedMotion()){ finish(); return; }
+    el.classList.add('leaving');
+    el.addEventListener('animationend', finish);
+    setTimeout(finish, 450);
   }
 
   /* ============================= RENDER: YOUR LIFE ============================= */
@@ -1438,20 +942,6 @@
     animateNumber($('percentLivedNum'), stats.percentLived, { decimals:1, suffix:'%' });
 
     $('surpassedNote').hidden = !stats.surpassed;
-    startLiveClock();
-
-    // The ring: a circle of radius 100 has a circumference of 2π·100, so
-    // offsetting the dash by the share NOT yet lived leaves exactly the
-    // lived share drawn. Set one frame later, once the section is visible,
-    // so the CSS transition has a starting point to sweep from.
-    var arc = $('gaugeArc'), circumference = 2 * Math.PI * 100;
-    $('gaugeLE').textContent = state.lifeExpectancy;
-    animateNumber($('gaugePct'), stats.percentLived, { decimals:1, suffix:'%', duration:1600 });
-    requestAnimationFrame(function(){
-      arc.getBoundingClientRect();          // commit the current offset before changing it
-      arc.style.strokeDasharray = circumference.toFixed(1);
-      arc.style.strokeDashoffset = (circumference * (1 - stats.percentLived / 100)).toFixed(1);
-    });
   }
 
   /* ============================= RENDER: WEEKS GRID ============================= */
@@ -1488,62 +978,11 @@
       else if(i < current) cls = 'past';
       else if(i === current) cls = 'current';
       else cls = 'future';
-      // Every other decade is a shade darker, so the rows are easy to count.
-      if(Math.floor(i / (WEEKS_PER_ROW * 10)) % 2) cls += ' alt';
       div.className = 'week-dot ' + cls;
       div.dataset.week = i; // read back by the delegated hover/click handler below
       frag.appendChild(div);
     }
     grid.appendChild(frag);
-  }
-
-  /**
-   * Sizes the weeks grid in whole pixels and draws the age labels beside it.
-   *
-   * With fractional square sizes (52 columns rarely divide the screen
-   * evenly) the browser rounds every square and gap differently, and the
-   * grid shimmers with a moiré pattern, especially on phones. Computing a
-   * whole-pixel square and gap here keeps every square identical. Called
-   * after the grid is shown and again whenever the window is resized.
-   */
-  function layoutWeeksGrid(){
-    if(!currentStats) return;
-    var frame = $('weeksFrame');
-    var width = frame.clientWidth;
-    if(!width) return;                              // still hidden: nothing to measure yet
-    var narrow = width < 560;
-    var axis = narrow ? 26 : 40;                    // room on the left for the age labels
-    var gap = narrow ? 1 : 2;
-    var cell = Math.floor((width - axis - (WEEKS_PER_ROW - 1) * gap) / WEEKS_PER_ROW);
-    cell = Math.max(3, Math.min(narrow ? 10 : 12, cell));
-    var step = cell + gap;
-    var gridWidth = WEEKS_PER_ROW * cell + (WEEKS_PER_ROW - 1) * gap;
-    // Set on the frame, not the grid: the scan line (.weeks-frame::after) needs them too, and the grid inherits them.
-    frame.style.setProperty('--cell', cell + 'px');
-    frame.style.setProperty('--gap', gap + 'px');
-    frame.style.setProperty('--axis', axis + 'px');
-
-    // An age label every ten rows, plus a small marker on the current row.
-    var rows = currentStats.totalWeeks / WEEKS_PER_ROW;
-    var html = '';
-    for(var y = 0; y < rows; y += 10){
-      html += '<span class="axis-label" style="top:' + (y * step) + 'px;height:' + cell + 'px">' + y + '</span>';
-    }
-    var nowRow = Math.floor(currentStats.currentWeekIndex / WEEKS_PER_ROW);
-    if(!currentStats.surpassed){
-      html += '<span class="axis-now" style="top:' + (nowRow * step) + 'px;height:' + cell + 'px">▶</span>';
-    }
-    $('weeksAxis').innerHTML = html;
-
-    // "age 23 · this week" to the right of the grid, when there is room for it.
-    var label = $('weeksNow');
-    var room = width - axis - gridWidth;
-    label.hidden = currentStats.surpassed || room < 150;
-    if(!label.hidden){
-      label.textContent = 'age ' + currentStats.age.years + ' · this week';
-      label.style.left = (axis + gridWidth + 14) + 'px';
-      label.style.top = (nowRow * step + cell / 2 - 8) + 'px';
-    }
   }
 
   /**
@@ -1625,11 +1064,10 @@
   function renderHabits(){
     var list = $('habitList');
     list.innerHTML = '';
-    state.activities.forEach(function(act, i){
+    state.activities.forEach(function(act){
       var row = document.createElement('div');
       row.className = 'habit-row';
       row.innerHTML =
-        '<span class="habit-swatch" style="background:' + habitColor(i) + ';color:' + habitColor(i) + '" aria-hidden="true"></span>' +
         '<input type="text" class="habit-name" value="'+escapeHtml(act.name)+'" placeholder="Activity name" maxlength="'+LIMITS.nameLength+'" data-id="'+act.id+'" aria-label="Activity name">' +
         '<div class="habit-hours-wrap">' +
           '<input type="number" class="habit-hours" value="'+act.hours+'" min="0" max="24" step="0.25" inputmode="decimal" data-id="'+act.id+'" aria-label="Hours per day for '+escapeHtml(act.name || 'this activity')+'">' +
@@ -1662,14 +1100,11 @@
     var empty = $('habitChartEmpty');
     chart.innerHTML = '';
     var le = state.lifeExpectancy;
-    // Colours follow list order (not the sorted order), so an activity keeps its colour everywhere.
-    var named = state.activities
-      .map(function(a, i){ return { name:a.name, hours:a.hours, years:(a.hours/24)*le, color:habitColor(i) }; })
-      .filter(function(a){ return a.name && a.name.trim(); });
-    var items = named.slice().sort(function(a,b){ return b.years - a.years; });
+    var items = state.activities
+      .filter(function(a){ return a.name && a.name.trim(); })
+      .map(function(a){ return { name:a.name, hours:a.hours, years:(a.hours/24)*le }; })
+      .sort(function(a,b){ return b.years - a.years; });
 
-    renderDayBar(named);
-    $('yearsMeta').textContent = 'in ' + le + ' years';
     empty.hidden = items.length > 0;
     if(items.length === 0) return;
 
@@ -1681,42 +1116,12 @@
       var pct = Math.min(100, (item.years/max)*100);
       row.innerHTML =
         '<div class="chart-label">'+escapeHtml(item.name)+'</div>' +
-        '<div class="chart-track"><div class="chart-fill" style="--c:'+item.color+'"></div></div>' +
+        '<div class="chart-track"><div class="chart-fill"></div></div>' +
         '<div class="chart-value">'+item.years.toFixed(1)+' yrs</div>';
       chart.appendChild(row);
       var fill = row.querySelector('.chart-fill');
       requestAnimationFrame(function(){ fill.style.width = pct + '%'; });
     });
-  }
-
-  /**
-   * The "Your 24 hours" bar: one slice per named activity, in list order,
-   * plus a hatched slice for whatever is left of the day. If the hours add
-   * up to more than 24 the slices are scaled to fit (the warning under the
-   * list already says so).
-   * @param {{name:string, hours:number, color:string}[]} items - named activities
-   */
-  function renderDayBar(items){
-    var used = items.filter(function(it){ return it.hours > 0; });
-    var total = used.reduce(function(s, it){ return s + it.hours; }, 0);
-    var scale = Math.max(24, total);
-    var free = Math.max(0, 24 - total);
-    var bar = '', legend = '', spoken = [];
-    used.forEach(function(it){
-      var label = escapeHtml(it.name) + ' · ' + fmtHours(it.hours) + ' h';
-      bar += '<span class="day-seg" style="width:' + (it.hours / scale * 100).toFixed(3) + '%;background:' + it.color + '" title="' + label + '"></span>';
-      legend += '<span class="day-key"><i style="background:' + it.color + '"></i>' + escapeHtml(it.name) + ' <b>' + fmtHours(it.hours) + 'h</b></span>';
-      spoken.push(it.name + ' ' + fmtHours(it.hours) + ' hours');
-    });
-    if(free > 0){
-      bar += '<span class="day-seg free" style="width:' + (free / 24 * 100).toFixed(3) + '%" title="Unplanned · ' + fmtHours(free) + ' h"></span>';
-      legend += '<span class="day-key free"><i></i>Unplanned <b>' + fmtHours(free) + 'h</b></span>';
-      spoken.push('unplanned ' + fmtHours(free) + ' hours');
-    }
-    $('dayBar').innerHTML = bar;
-    $('dayBar').setAttribute('aria-label', 'Your day: ' + (spoken.join(', ') || 'nothing entered yet'));
-    $('dayLegend').innerHTML = legend;
-    $('dayTotal').textContent = fmtHours(total) + ' of 24 h';
   }
 
   /**
@@ -1871,35 +1276,22 @@
     // ISO dates (YYYY-MM-DD) sort correctly as plain strings.
     var sorted = state.milestones.slice().sort(function(a,b){ return a.date.localeCompare(b.date); });
     var today = todayIso();
-    var todayPlaced = false;
-    var longDate = function(iso){ return parseIsoDate(iso).toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' }); };
-
-    /** A "Today" marker on the line, between what's behind you and what's ahead. */
-    function addTodayMarker(){
-      var marker = document.createElement('div');
-      marker.className = 'milestone-item is-today';
-      marker.innerHTML = '<span class="milestone-dot today"></span>' +
-        '<div class="milestone-info"><div class="milestone-name">Today</div><div class="milestone-date">' + longDate(today) + '</div></div>';
-      list.appendChild(marker);
-      todayPlaced = true;
-    }
 
     sorted.forEach(function(m){
+      var d = parseIsoDate(m.date);
       var isPast = m.date < today;   // a milestone dated today is still "today", not "passed"
-      if(!isPast && !todayPlaced) addTodayMarker();
+      var dateStr = d.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
       var item = document.createElement('div');
-      item.className = 'milestone-item' + (isPast ? ' is-past' : '');
+      item.className = 'milestone-item';
       item.innerHTML =
         '<span class="milestone-dot '+(isPast?'past':'')+'"></span>' +
         '<div class="milestone-info">' +
           '<div class="milestone-name">'+escapeHtml(m.name)+'</div>' +
-          '<div class="milestone-date">'+longDate(m.date)+(isPast?' · passed':'')+'</div>' +
+          '<div class="milestone-date">'+dateStr+(isPast?' · passed':'')+'</div>' +
         '</div>' +
-        '<span class="milestone-when'+(isPast?'':' ahead')+'">'+relativeLabel(m.date)+'</span>' +
         '<button class="milestone-remove" type="button" data-id="'+m.id+'" aria-label="Remove '+escapeHtml(m.name)+'">×</button>';
       list.appendChild(item);
     });
-    if(!todayPlaced) addTodayMarker();
   }
 
   /* ============================= REVEAL / FLOW ============================= */
@@ -1913,25 +1305,9 @@
       if(entry.isIntersecting){
         entry.target.classList.add('is-visible');
         revealObserver.unobserve(entry.target);
-        if(entry.target.id === 'lifeInWeeks') scanWeeksGrid();
       }
     });
   }, { threshold:0.12 }) : null;
-
-  /**
-   * Plays the scan over the weeks grid once (see .weeks-frame.scanning): a
-   * line of light runs down it and the rows appear behind it. The class is
-   * removed when the animation ends, so the grid is never left masked.
-   */
-  function scanWeeksGrid(){
-    var frame = $('weeksFrame');
-    frame.classList.add('scanning');
-    frame.addEventListener('animationend', function done(e){
-      if(e.target !== frame) return;
-      frame.classList.remove('scanning');
-      frame.removeEventListener('animationend', done);
-    });
-  }
 
   /** Hands a section to the observer above, or shows it immediately if the browser has none. */
   function observeReveal(el){
@@ -1940,36 +1316,6 @@
   }
 
   var GATED_IDS = ['yourLife','lifeInWeeks','timeGoes','whatIf','yourFuture','finale'];
-
-  var railObserver = null;
-  /**
-   * The section rail on the right edge (wide screens only): one link per
-   * visible section, named by its data-nav attribute. They are plain
-   * anchors, so they work with the keyboard and scroll smoothly through the
-   * page's own scroll-behavior. An IntersectionObserver lights up the dot of
-   * whichever section crosses the middle of the screen. Rebuilt when the
-   * results are revealed, since hidden sections get no dot.
-   */
-  function renderRail(){
-    var rail = $('rail');
-    var sections = Array.prototype.filter.call(document.querySelectorAll('section[data-nav]'), function(s){ return !s.hidden; });
-    rail.innerHTML = sections.map(function(s){
-      return '<a href="#' + s.id + '" data-for="' + s.id + '"><span class="rail-label">' + escapeHtml(s.dataset.nav) + '</span><span class="rail-dot"></span></a>';
-    }).join('');
-    if(!('IntersectionObserver' in window)) return;
-    if(railObserver) railObserver.disconnect();
-    railObserver = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(!entry.isIntersecting) return;
-        Array.prototype.forEach.call(rail.children, function(link){
-          var on = link.dataset.for === entry.target.id;
-          link.classList.toggle('is-active', on);
-          if(on) link.setAttribute('aria-current', 'true'); else link.removeAttribute('aria-current');
-        });
-      });
-    }, { rootMargin:'-50% 0px -50% 0px' });
-    sections.forEach(function(s){ railObserver.observe(s); });
-  }
 
   /**
    * Runs once the user submits their birth date/life expectancy (or on
@@ -1991,9 +1337,6 @@
     renderMilestones();
 
     GATED_IDS.forEach(function(id){ $(id).hidden = false; });
-    layoutWeeksGrid();              // needs the grid on screen to measure it
-    renderHeroRing(currentStats);
-    renderRail();
 
     $('yourLife').classList.add('is-visible');
     ['lifeInWeeks','timeGoes','whatIf','yourFuture','finale'].forEach(function(id){
@@ -2063,16 +1406,6 @@
     $('lifeExpectancy').addEventListener('input', function(e){
       $('lifeExpectancyValue').textContent = e.target.value;
       paintRange(e.target);
-      renderSetupPreview();
-    });
-    $('birthDate').addEventListener('input', renderSetupPreview);
-    $('birthDate').addEventListener('change', renderSetupPreview);
-
-    // Re-fit the weeks grid in whole pixels when the window size changes (debounced).
-    var resizeTimer = null;
-    window.addEventListener('resize', function(){
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(layoutWeeksGrid, 120);
     });
 
     setupTooltip();
@@ -2100,9 +1433,11 @@
     $('habitList').addEventListener('click', function(e){
       if(e.target.classList.contains('habit-remove')){
         var id = e.target.dataset.id;
-        state.activities = state.activities.filter(function(a){ return a.id !== id; });
-        saveState();
-        renderHabits();
+        leave(e.target.closest('.habit-row'), function(){
+          state.activities = state.activities.filter(function(a){ return a.id !== id; });
+          saveState();
+          renderHabits();
+        });
       }
     });
 
@@ -2111,6 +1446,8 @@
       state.activities.push({ id:uid('a'), name:'', hours:1 });
       saveState();
       renderHabits();
+      var rows = document.querySelectorAll('.habit-row');
+      if(rows.length) rows[rows.length - 1].classList.add('enter');
       var inputs = document.querySelectorAll('.habit-name');
       var last = inputs[inputs.length-1];
       if(last) last.focus();
@@ -2128,9 +1465,12 @@
       if(!name){ nameInput.focus(); return; }
       if(!isIsoDate(date)){ dateInput.focus(); return; }
       if(state.milestones.length >= LIMITS.milestones) return;
-      state.milestones.push({ id:uid('m'), name:name, date:date });
+      var newId = uid('m');
+      state.milestones.push({ id:newId, name:name, date:date });
       saveState();
       renderMilestones();
+      var added = $('milestoneList').querySelector('[data-id="' + newId + '"]');
+      if(added) added.closest('.milestone-item').classList.add('enter');
       nameInput.value = '';
       dateInput.value = '';
       nameInput.focus();
@@ -2139,9 +1479,11 @@
     $('milestoneList').addEventListener('click', function(e){
       if(e.target.classList.contains('milestone-remove')){
         var id = e.target.dataset.id;
-        state.milestones = state.milestones.filter(function(m){ return m.id !== id; });
-        saveState();
-        renderMilestones();
+        leave(e.target.closest('.milestone-item'), function(){
+          state.milestones = state.milestones.filter(function(m){ return m.id !== id; });
+          saveState();
+          renderMilestones();
+        });
       }
     });
 
@@ -2182,48 +1524,72 @@
     }, { passive:true });
   }
 
-  /**
-   * A soft light that follows the mouse around the page (mouse only: on
-   * touch screens there is no pointer to follow). Positions are written to
-   * CSS variables at most once per frame.
-   */
-  function setupSpotlight(){
-    var el = $('spotlight');
-    if(!el || !window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
-    var x = 0, y = 0, queued = false;
-    window.addEventListener('pointermove', function(e){
-      if(e.pointerType !== 'mouse') return;
-      x = e.clientX; y = e.clientY;
-      el.classList.add('on');
-      if(queued) return;
-      queued = true;
-      requestAnimationFrame(function(){
-        el.style.setProperty('--sx', x + 'px');
-        el.style.setProperty('--sy', y + 'px');
-        queued = false;
-      });
-    }, { passive:true });
-    document.addEventListener('mouseleave', function(){ el.classList.remove('on'); });
-  }
+  /* ============================= POINTER EFFECTS ============================= */
+
+  /** Cards that a light follows across (see "Surfaces and light" in the stylesheet). */
+  var LIGHT_SELECTOR = '.stat-card, .habit-row, .weeks-grid, .whatif-result';
+  /** Cards that also lean towards the mouse in 3D. */
+  var TILT_SELECTOR = '.whatif-result';
+  /** Buttons that lean a few pixels towards the cursor. */
+  var MAGNET_SELECTOR = '.btn-primary';
 
   /**
-   * Magnetic primary buttons: with a mouse, a button leans a few pixels
-   * towards the cursor while it hovers over it, and springs back when it
-   * leaves. Off with reduced motion.
+   * Pointer effects, for mouse users only: on touch screens there is no
+   * hover, and the effects would only get in the way. A single listener for
+   * the whole page; on each animation frame it finds the card, tilting card
+   * and button under the pointer and writes the pointer's position into
+   * their CSS variables:
+   *  - --px / --py: where the light is drawn on a card;
+   *  - --rx / --ry: the tilt, a few degrees at most;
+   *  - --mx / --my: the pull on a button.
+   * When the pointer leaves an element its variables are removed and CSS
+   * eases it back. Tilt and pull are skipped with reduced motion.
    */
-  function setupMagnetic(){
-    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    Array.prototype.forEach.call(document.querySelectorAll('.btn-primary'), function(btn){
-      btn.addEventListener('pointermove', function(e){
-        if(e.pointerType !== 'mouse') return;
-        var r = btn.getBoundingClientRect();
-        btn.style.setProperty('--mx', ((e.clientX - r.left) / r.width - 0.5) * 10 + 'px');
-        btn.style.setProperty('--my', ((e.clientY - r.top) / r.height - 0.5) * 8 + 'px');
-      });
-      btn.addEventListener('pointerleave', function(){
-        btn.style.setProperty('--mx', '0px');
-        btn.style.setProperty('--my', '0px');
-      });
+  function setupPointerEffects(){
+    if(!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    var still = prefersReducedMotion();
+    var last = null, queued = false, tilted = null, pulled = null;
+
+    function clear(el, a, b){ if(el){ el.style.removeProperty(a); el.style.removeProperty(b); } }
+
+    function apply(){
+      queued = false;
+      var t = last.target && last.target.closest ? last.target : null;
+      var x = last.clientX, y = last.clientY;
+      var lit = t && t.closest(LIGHT_SELECTOR);
+      if(lit){
+        var r = lit.getBoundingClientRect();
+        lit.style.setProperty('--px', (x - r.left) + 'px');
+        lit.style.setProperty('--py', (y - r.top) + 'px');
+      }
+      if(still) return;
+      var tilt = t && t.closest(TILT_SELECTOR);
+      if(tilted !== tilt) clear(tilted, '--rx', '--ry');
+      tilted = tilt;
+      if(tilt){
+        var b = tilt.getBoundingClientRect();
+        tilt.style.setProperty('--rx', (((y - b.top) / b.height - 0.5) * -5).toFixed(2) + 'deg');
+        tilt.style.setProperty('--ry', (((x - b.left) / b.width - 0.5) * 6).toFixed(2) + 'deg');
+      }
+      var btn = t && t.closest(MAGNET_SELECTOR);
+      if(pulled !== btn) clear(pulled, '--mx', '--my');
+      pulled = btn;
+      if(btn){
+        var c = btn.getBoundingClientRect();
+        btn.style.setProperty('--mx', (((x - c.left) / c.width - 0.5) * 8).toFixed(1) + 'px');
+        btn.style.setProperty('--my', (((y - c.top) / c.height - 0.5) * 6).toFixed(1) + 'px');
+      }
+    }
+
+    document.addEventListener('pointermove', function(e){
+      if(e.pointerType !== 'mouse') return;
+      last = e;
+      if(!queued){ queued = true; requestAnimationFrame(apply); }
+    }, { passive:true });
+    // The pointer left the window: let everything settle back.
+    document.documentElement.addEventListener('mouseleave', function(){
+      clear(tilted, '--rx', '--ry'); clear(pulled, '--mx', '--my');
+      tilted = pulled = null;
     });
   }
 
@@ -2250,19 +1616,13 @@
     $('lifeExpectancyValue').textContent = state.lifeExpectancy;
     if(state.birthDate) $('birthDate').value = state.birthDate;
     paintRange($('lifeExpectancy'));
-    renderSetupPreview();
 
     bindEvents();
     setupScrollProgress();
-    setupSpotlight();
-    setupMagnetic();
-    try{ initGalaxy(); }catch(err){ /* no canvas: the hero simply shows the number without the galaxy */ }
+    setupPointerEffects();
 
     if(state.birthDate){
       revealResults(false);
-    } else {
-      renderHeroRing(null);
-      renderRail();
     }
   }
 

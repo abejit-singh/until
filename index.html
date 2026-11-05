@@ -24,7 +24,12 @@
 <meta property="og:title" content="UNTIL — You don't have forever.">
 <meta property="og:description" content="Visualize the time you've lived, the time you may have left, and what you're doing with it.">
 <meta property="og:type" content="website">
-<meta name="twitter:card" content="summary">
+<meta property="og:url" content="https://abejit-singh.github.io/until/">
+<meta property="og:image" content="https://abejit-singh.github.io/until/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:image" content="https://abejit-singh.github.io/until/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="UNTIL — You don't have forever.">
 <meta name="twitter:description" content="Visualize the time you've lived, the time you may have left, and what you're doing with it.">
 <link rel="icon" type="image/png" href="favicon-32.png">
@@ -187,9 +192,10 @@
     border:1px solid transparent;cursor:pointer;display:inline-flex;align-items:center;gap:.5rem;white-space:nowrap;
     transition:transform .3s var(--ease),box-shadow .3s var(--ease),background .3s,border-color .3s,color .3s;
   }
-  .btn-primary{background:var(--accent);color:var(--bg);box-shadow:0 10px 30px -12px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,0.45);}
-  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 16px 40px -10px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,0.45);}
-  .btn-primary:active{transform:translateY(0);}
+  /* --mx / --my: the "magnetic" lean towards the cursor, set by setupMagnetic(). */
+  .btn-primary{background:var(--accent);color:var(--bg);box-shadow:0 10px 30px -12px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,0.45);transform:translate(var(--mx,0px),var(--my,0px));}
+  .btn-primary:hover{transform:translate(var(--mx,0px),calc(var(--my,0px) - 2px));box-shadow:0 16px 40px -10px var(--accent-glow),inset 0 1px 0 rgba(255,255,255,0.45);}
+  .btn-primary:active{transform:translate(var(--mx,0px),var(--my,0px)) scale(.98);}
   .btn-ghost{background:rgba(244,244,240,0.02);color:var(--text);border-color:var(--border-strong);}
   .btn-ghost:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-soft);}
   .arrow{transition:transform .3s var(--ease);}
@@ -244,21 +250,26 @@
   .hero-actions{display:flex;align-items:center;flex-wrap:wrap;gap:1.1rem 1.5rem;margin-top:2.4rem;}
   .hero-note{font-family:var(--font-mono);font-size:.68rem;letter-spacing:.08em;color:var(--text-dimmer);}
 
-  /* The life ring: one tick per year, drawn by renderHeroRing(). */
-  .hero-visual{position:relative;width:100%;max-width:440px;aspect-ratio:1;justify-self:end;animation:fadeIn 1.6s var(--ease) .35s both;}
-  .hero-visual .ring{width:100%;height:100%;overflow:visible;}
-  .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
-  .ring-num{font-family:var(--font-mono);font-weight:700;font-size:clamp(2rem,3.4vw,2.9rem);line-height:1;letter-spacing:-.02em;}
-  .ring-cap{margin-top:.6rem;max-width:11.5rem;font-size:.78rem;line-height:1.45;color:var(--text-dim);}
-  .ring-guide{fill:none;stroke:var(--border-strong);stroke-width:1;stroke-dasharray:1 7;}
-  .tick{stroke:var(--tick);stroke-width:3;stroke-linecap:round;}
-  .tick.decade{stroke-width:3.6;}
-  .tick.lived{stroke:var(--tick-lived);}
-  .tick.now{stroke:var(--accent);stroke-width:5;animation:pulse 2.2s ease-in-out infinite;}
-  /* Before a birth date is known, a slow wave of light travels around the ring. */
-  .tick.idle{animation:tickWave 7s linear infinite backwards;animation-delay:calc(var(--i) / var(--n) * 7s);}
-  .tick-label{font-family:var(--font-mono);font-size:11px;fill:var(--text-dimmer);}
-  @keyframes tickWave{0%,34%,100%{stroke:var(--tick);}5%{stroke:var(--accent);}}
+  /* The life galaxy: one point per week on a sunflower spiral, drawn by initGalaxy(). */
+  .hero-visual{position:relative;width:100%;max-width:470px;aspect-ratio:1;justify-self:end;animation:fadeIn 1.6s var(--ease) .35s both;}
+  .galaxy{display:block;width:100%;height:100%;cursor:crosshair;}
+  /* The number sits on a dark disc so the spiral never makes it hard to read. */
+  .ring-center{position:absolute;left:50%;top:50%;width:37%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;pointer-events:none;}
+  .ring-num{font-family:var(--font-mono);font-weight:700;font-size:clamp(1.6rem,3vw,2.5rem);line-height:1;letter-spacing:-.02em;}
+  .ring-cap{margin-top:.5rem;max-width:9rem;font-size:.72rem;line-height:1.4;color:var(--text-dim);}
+  .galaxy-tip{position:absolute;pointer-events:none;transform:translate(-50%,-160%);padding:6px 10px;border-radius:8px;border:1px solid var(--border-strong);background:rgba(14,14,14,0.94);font-family:var(--font-mono);font-size:.7rem;white-space:nowrap;opacity:0;transition:opacity .15s;}
+  .galaxy-tip.show{opacity:1;}
+
+  /* The title arrives letter by letter, out of a blur. */
+  .hero-title .ch{display:inline-block;animation:chIn 1s var(--ease) both;animation-delay:calc(.2s + var(--d) * 75ms);}
+  .hero-title .dot{display:inline-block;animation:dotIn .7s cubic-bezier(.3,1.6,.5,1) both .75s;}
+  @keyframes chIn{from{opacity:0;transform:translateY(.35em) rotate(5deg);filter:blur(10px);}}
+  @keyframes dotIn{from{opacity:0;transform:scale(0);}}
+
+  /* A soft light that follows the mouse across the page (see setupSpotlight). */
+  .spotlight{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .6s;
+    background:radial-gradient(420px circle at var(--sx,50%) var(--sy,50%),rgba(141,255,106,0.07),transparent 70%);}
+  .spotlight.on{opacity:1;}
 
   .scroll-hint{
     position:absolute;bottom:2.6rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;
@@ -274,8 +285,8 @@
   @media (max-width:959px){
     .hero{overflow:hidden;}                /* the ring hangs off the right edge: clip it here, not with a sideways scroll */
     .hero-grid{display:block;}
-    .hero-visual{position:absolute;z-index:-1;top:42%;right:-42%;width:min(620px,118vw);max-width:none;transform:translateY(-50%);opacity:.26;}
-    .ring-center{display:none;}
+    .hero-visual{width:min(420px,90vw);margin:2.6rem auto 0;}
+    .scroll-hint{display:none;}
   }
 
   /* ============================= SETUP ============================= */
@@ -326,6 +337,14 @@
   .gauge-num{font-family:var(--font-mono);font-size:clamp(1.8rem,3vw,2.4rem);font-weight:700;line-height:1;font-variant-numeric:tabular-nums;}
   .gauge-cap{font-size:.76rem;color:var(--text-dim);margin-top:.5rem;max-width:9rem;line-height:1.4;}
 
+  /* Seconds alive, live. Tabular figures keep the digits from jittering as they change. */
+  .live-clock{display:flex;flex-direction:column;gap:.35rem;margin-bottom:1.4rem;padding:1.3rem 1.5rem;border-radius:var(--radius);
+    background:linear-gradient(var(--bg-card),var(--bg-card)) padding-box,linear-gradient(120deg,var(--accent-line),rgba(244,244,240,0.06) 40%,rgba(61,224,182,0.3)) border-box;border:1px solid transparent;}
+  .live-label{display:inline-flex;align-items:center;gap:.6rem;font-family:var(--font-mono);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--text-dim);}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);box-shadow:0 0 10px var(--accent-glow);animation:pulse 1.2s ease-in-out infinite;}
+  .live-num{font-family:var(--font-mono);font-size:clamp(1.9rem,6vw,3.4rem);font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+  .live-num small{font-size:.5em;color:var(--accent);margin-left:.05em;}
+  .live-sub{font-size:.84rem;color:var(--text-dim);}
   .life-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
   .stat-card{background:var(--bg-card);padding:1.4rem 1.5rem;display:flex;flex-direction:column;gap:.6rem;transition:background .3s;}
   .stat-card:hover{background:var(--bg-card-hi);}
@@ -355,6 +374,13 @@
   .weeks-now{position:absolute;display:flex;align-items:center;gap:.55rem;font-family:var(--font-mono);font-size:.7rem;color:var(--accent);white-space:nowrap;pointer-events:none;}
   .weeks-now::before{content:'';width:18px;height:1px;background:var(--accent);opacity:.6;}
   .weeks-grid{display:grid;grid-template-columns:repeat(52,var(--cell,10px));grid-auto-rows:var(--cell,10px);gap:var(--gap,2px);width:max-content;}
+  /* First time the grid comes into view, a line of light scans down it and the rows appear behind it. */
+  @property --scan{syntax:'<percentage>';inherits:true;initial-value:110%;}
+  .weeks-frame.scanning{animation:scan 2.2s cubic-bezier(.45,.05,.25,1) both;}
+  .weeks-frame.scanning .weeks-grid{-webkit-mask-image:linear-gradient(180deg,#000 calc(var(--scan) - 4%),rgba(0,0,0,0.08) calc(var(--scan) + 2%));mask-image:linear-gradient(180deg,#000 calc(var(--scan) - 4%),rgba(0,0,0,0.08) calc(var(--scan) + 2%));}
+  .weeks-frame.scanning::after{content:'';position:absolute;left:var(--axis,40px);width:calc(52 * var(--cell,10px) + 51 * var(--gap,2px));top:var(--scan);height:2px;pointer-events:none;
+    background:linear-gradient(90deg,transparent,var(--accent) 20%,var(--accent-2) 80%,transparent);box-shadow:0 0 14px var(--accent-glow),0 0 2px var(--accent);}
+  @keyframes scan{from{--scan:-4%;}to{--scan:104%;}}
   .week-dot{border-radius:22%;transition:transform .15s var(--ease);cursor:default;}
   .week-dot:hover{transform:scale(1.8);position:relative;z-index:1;}
   .week-dot.past{background:var(--dot-past);}
@@ -495,6 +521,7 @@
 <noscript>UNTIL needs JavaScript to run. Please enable it in your browser.</noscript>
 
 <div class="progress-bar" id="progressBar"></div>
+<div class="spotlight" id="spotlight" aria-hidden="true"></div>
 <button class="reset-btn" id="resetBtn" type="button" title="Reset all data" aria-label="Reset all saved data">↺</button>
 <div class="tooltip" id="tooltip" role="status" aria-hidden="true"></div>
 <!-- Section rail: filled in by renderRail(), shown on wide screens only. -->
@@ -505,7 +532,8 @@
   <div class="hero-grid">
     <div class="hero-content">
       <span class="eyebrow">TIME, VISUALIZED</span>
-      <h1 class="hero-title">UNTIL<span class="dot">.</span></h1>
+      <!-- The letters arrive one by one (see .hero-title .ch); screen readers get the plain word from aria-label. -->
+      <h1 class="hero-title" aria-label="UNTIL."><span class="ch" aria-hidden="true" style="--d:0">U</span><span class="ch" aria-hidden="true" style="--d:1">N</span><span class="ch" aria-hidden="true" style="--d:2">T</span><span class="ch" aria-hidden="true" style="--d:3">I</span><span class="ch" aria-hidden="true" style="--d:4">L</span><span class="dot" aria-hidden="true">.</span></h1>
       <p class="hero-tagline">You don't have forever.</p>
       <p class="hero-subtitle">Visualize the time you've lived, the time you may have left, and what you're doing with it.</p>
       <div class="hero-actions">
@@ -513,13 +541,15 @@
         <span class="hero-note">No sign-up · stays on your device</span>
       </div>
     </div>
-    <!-- The life ring: one tick per year (see renderHeroRing). Decorative; the same numbers are in the sections below. -->
+    <!-- The life galaxy: one point of light per week of the chosen lifespan, spiralling out from birth (see initGalaxy).
+         Decorative; the same numbers are in the sections below. -->
     <div class="hero-visual" aria-hidden="true">
-      <svg class="ring" id="heroRing" viewBox="0 0 400 400"></svg>
+      <canvas class="galaxy" id="galaxy"></canvas>
       <div class="ring-center">
         <span class="ring-num" id="heroRingNum">4,160</span>
         <span class="ring-cap" id="heroRingCap">weeks in an 80-year life</span>
       </div>
+      <div class="galaxy-tip" id="galaxyTip"></div>
     </div>
   </div>
   <div class="scroll-hint" aria-hidden="true">
@@ -591,6 +621,12 @@
         <span class="gauge-cap">of your <span id="gaugeLE">80</span> years lived</span>
       </div>
     </div>
+  </div>
+  <!-- Seconds alive, counting live (see startLiveClock). Not announced to screen readers: it changes 60 times a second. -->
+  <div class="live-clock" aria-hidden="true">
+    <span class="live-label"><i class="live-dot"></i>Live · seconds you've been alive</span>
+    <span class="live-num" id="liveSeconds">0</span>
+    <span class="live-sub" id="liveSub"></span>
   </div>
   <div class="life-stat-grid">
     <div class="stat-card"><span class="stat-label">Weeks lived</span><span class="stat-value" id="weeksLivedNum">0</span></div>
@@ -1056,34 +1092,271 @@
    */
   function habitColor(index){ return 'var(--h' + (index % 8 + 1) + ')'; }
 
+  /** Reads a colour token from the stylesheet, so the canvas uses the same palette as the page. */
+  function cssColor(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+
+  /** '#8DFF6A' → [141, 255, 106]. */
+  function hexRgb(hex){
+    var n = parseInt(hex.replace('#', ''), 16);
+    return [n >> 16 & 255, n >> 8 & 255, n & 255];
+  }
+
+  var galaxy = null;      // set by initGalaxy: { setStats(stats) }
+
   /**
-   * Draws the ring in the hero: one tick per year of the chosen lifespan,
-   * every tenth year longer and numbered, like a clock face. Before a date
-   * of birth is known a slow wave of light travels around it (pure CSS,
-   * see .tick.idle); afterwards it shows the user's own life: years lived,
-   * this year (pulsing) and years ahead.
+   * The life galaxy in the hero: one point of light per week of the chosen
+   * lifespan, laid out on a sunflower spiral (each point turned by the
+   * golden angle from the one before, at a radius that grows with the square
+   * root of its index, so they spread evenly). Birth is at the centre; the
+   * most recent weeks are on the outer edge.
+   *  - Before a date of birth is known, a wave of light ripples outwards
+   *    through the weeks, from birth to the edge, over and over.
+   *  - Afterwards the weeks already lived glow (the most recent ones a little
+   *    brighter), this week pulses, and the weeks ahead stay dim.
+   *  - The spiral turns slowly. Points near the pointer drift away from it
+   *    and brighten, and hovering one shows which week it is.
+   * Drawn on a canvas: SVG would need several thousand elements. It is only
+   * animated while on screen, and drawn once, still, with reduced motion.
+   */
+  function initGalaxy(){
+    var canvas = $('galaxy');
+    if(!canvas || !canvas.getContext) return;
+    var ctx = canvas.getContext('2d');
+    var tip = $('galaxyTip');
+    var GOLDEN = Math.PI * (3 - Math.sqrt(5));             // ≈ 137.5°, the golden angle
+    var col = { accent:hexRgb(cssColor('--accent')), teal:hexRgb(cssColor('--accent-2')), text:hexRgb(cssColor('--text')) };
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var size = 0, n = 0, stats = null;
+    var angle = 0, rafId = null, lastTime = 0, onScreen = true, startTime = performance.now();
+    var mouse = null, hover = -1;
+    var baseR = new Float32Array(0), baseA = new Float32Array(0), shift = new Float32Array(0);
+
+    var HOLE = 0.4;      // the empty centre, as a share of the radius: room for the number
+
+    /**
+     * Lays out one point per week of the current life expectancy. Radii are
+     * spread so that the points fill the ring between the hole and the edge
+     * evenly: r² grows in equal steps from HOLE² to 1.
+     */
+    function layout(){
+      n = state.lifeExpectancy * WEEKS_PER_ROW;
+      baseR = new Float32Array(n); baseA = new Float32Array(n); shift = new Float32Array(n * 2);
+      for(var i = 0; i < n; i++){
+        baseR[i] = Math.sqrt(HOLE * HOLE + (1 - HOLE * HOLE) * (i + 0.5) / n);
+        baseA[i] = i * GOLDEN;
+      }
+    }
+
+    /** Matches the canvas resolution to its size on screen (sharp on high-density displays). */
+    function resize(){
+      var w = canvas.clientWidth;
+      if(!w) return;
+      var dpr = Math.min(2, window.devicePixelRatio || 1);
+      size = w;
+      canvas.width = Math.round(w * dpr);
+      canvas.height = Math.round(w * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      draw(performance.now());
+    }
+
+    /** "rgba(r,g,b,a)" from a colour triple. */
+    function rgba(c, a){ return 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + a.toFixed(3) + ')'; }
+
+    /** Paints one frame at time `now` (ms). */
+    function draw(now){
+      if(!size) return;
+      var c = size / 2, R = size / 2 - 8;
+      var dot = Math.max(1.1, Math.min(2.2, R / Math.sqrt(n) * 0.62));   // point size from the spacing
+      var current = stats ? (stats.surpassed ? n : stats.currentWeekIndex) : -1;
+      var wave = HOLE - 0.08 + ((now - startTime) / 5200) % 1 * (1.16 - HOLE);   // idle ripple radius, hole → edge
+      ctx.clearRect(0, 0, size, size);
+
+      // A faint halo behind the lived part of the spiral.
+      if(stats && current > 0){
+        var reach = baseR[Math.min(n, current) - 1] * R;
+        var g = ctx.createRadialGradient(c, c, 0, c, c, reach + 30);
+        g.addColorStop(0, rgba(col.accent, 0.14));
+        g.addColorStop(1, rgba(col.accent, 0));
+        ctx.fillStyle = g;
+        ctx.beginPath(); ctx.arc(c, c, reach + 30, 0, 2 * Math.PI); ctx.fill();
+      }
+
+      for(var i = 0; i < n; i++){
+        var a = baseA[i] + angle, r = baseR[i] * R;
+        var x = c + Math.cos(a) * r, y = c + Math.sin(a) * r;
+        // Points near the pointer drift away and light up; they ease back when it leaves.
+        var dx = 0, dy = 0, near = 0;
+        if(mouse){
+          var mx = x - mouse[0], my = y - mouse[1], d2 = mx * mx + my * my;
+          if(d2 < 3600){
+            var d = Math.sqrt(d2) || 1, f = (1 - d / 60);
+            near = f;
+            dx = mx / d * f * 14; dy = my / d * f * 14;
+          }
+        }
+        shift[i * 2] += (dx - shift[i * 2]) * 0.18;
+        shift[i * 2 + 1] += (dy - shift[i * 2 + 1]) * 0.18;
+        x += shift[i * 2]; y += shift[i * 2 + 1];
+
+        var color, alpha, s = dot;
+        if(!stats){
+          // Idle: a ring of light travels outwards through the weeks.
+          var k = baseR[i] - wave;
+          var pulse = Math.max(0, 1 - Math.abs(k) * 9);
+          color = pulse > 0.05 ? col.accent : col.text;
+          alpha = 0.16 + pulse * 0.75;
+          s = dot * (1 + pulse * 0.5);
+        } else if(i < current){
+          var recent = Math.max(0, 1 - (current - i) / (WEEKS_PER_ROW * 3));   // the last three years shine a little brighter
+          color = recent > 0 ? col.accent : col.text;
+          alpha = recent > 0 ? 0.5 + recent * 0.45 : 0.55;
+        } else if(i === current){
+          continue;            // drawn last, on top
+        } else {
+          color = col.text; alpha = 0.12;
+        }
+        if(near > 0){ alpha = Math.min(1, alpha + near * 0.6); s = dot * (1 + near * 0.8); }
+        if(i === hover){ color = col.accent; alpha = 1; s = dot * 2.2; }
+        ctx.fillStyle = rgba(color, alpha);
+        ctx.fillRect(x - s / 2, y - s / 2, s, s);
+      }
+
+      // This week: a bright point with a breathing glow.
+      if(stats && !stats.surpassed && current >= 0 && current < n){
+        var ca = baseA[current] + angle, cr = baseR[current] * R;
+        var cx = c + Math.cos(ca) * cr + shift[current * 2], cy = c + Math.sin(ca) * cr + shift[current * 2 + 1];
+        var breath = still ? 0.6 : 0.5 + 0.5 * Math.sin(now / 420);
+        var glow = ctx.createRadialGradient(cx, cy, 0, cx, cy, 16);
+        glow.addColorStop(0, rgba(col.accent, 0.55 + breath * 0.35));
+        glow.addColorStop(1, rgba(col.accent, 0));
+        ctx.fillStyle = glow;
+        ctx.beginPath(); ctx.arc(cx, cy, 16, 0, 2 * Math.PI); ctx.fill();
+        ctx.fillStyle = rgba(col.accent, 1);
+        ctx.beginPath(); ctx.arc(cx, cy, dot * 1.6, 0, 2 * Math.PI); ctx.fill();
+      }
+    }
+
+    function frame(now){
+      rafId = null;
+      var dt = lastTime ? Math.min(50, now - lastTime) : 16;
+      lastTime = now;
+      if(!still) angle += dt * 0.000035;          // one turn every ~3 minutes
+      draw(now);
+      if(onScreen && !still) rafId = requestAnimationFrame(frame);
+    }
+    function kick(){
+      if(rafId) return;
+      lastTime = 0;
+      rafId = requestAnimationFrame(frame);
+    }
+
+    /** The week under the pointer: the nearest point within a few pixels, or -1. */
+    function weekAt(px, py){
+      var c = size / 2, R = size / 2 - 8, best = -1, bestD = 64;
+      for(var i = 0; i < n; i++){
+        var a = baseA[i] + angle, r = baseR[i] * R;
+        var x = c + Math.cos(a) * r + shift[i * 2] - px, y = c + Math.sin(a) * r + shift[i * 2 + 1] - py;
+        var d2 = x * x + y * y;
+        if(d2 < bestD){ bestD = d2; best = i; }
+      }
+      return best;
+    }
+
+    canvas.addEventListener('pointermove', function(e){
+      if(e.pointerType !== 'mouse') return;
+      var rect = canvas.getBoundingClientRect();
+      var px = e.clientX - rect.left, py = e.clientY - rect.top;
+      mouse = [px, py];
+      hover = weekAt(px, py);
+      if(hover >= 0){
+        var year = Math.floor(hover / WEEKS_PER_ROW), week = hover % WEEKS_PER_ROW + 1;
+        tip.textContent = stats ? weekTooltipText(hover) : 'Year ' + (year + 1) + ' · week ' + week;
+        tip.style.left = px + 'px';
+        tip.style.top = py + 'px';
+        tip.classList.add('show');
+      } else {
+        tip.classList.remove('show');
+      }
+      if(still) draw(performance.now()); else kick();
+    });
+    canvas.addEventListener('pointerleave', function(){
+      mouse = null; hover = -1;
+      tip.classList.remove('show');
+      if(still) draw(performance.now()); else kick();
+    });
+
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(entries){
+        onScreen = entries[0].isIntersecting;
+        if(onScreen) kick();
+      }).observe(canvas);
+    }
+    var resizeTimer = null;
+    window.addEventListener('resize', function(){ clearTimeout(resizeTimer); resizeTimer = setTimeout(resize, 120); });
+    layout();
+    resize();
+    kick();
+    galaxy = {
+      /** Shows the user's own life (or the idle wave when stats is null), re-laid out for the current lifespan. */
+      setStats:function(s){ stats = s; layout(); draw(performance.now()); kick(); }
+    };
+  }
+
+  var liveClock = null;   // { el, birth, running } once startLiveClock has run
+
+  /**
+   * The live counter under "You are": seconds since midnight on the day you
+   * were born, with tenths ticking. Underneath, the next billion-second
+   * birthday (1 billion seconds is about 31.7 years) or, past three billion,
+   * the last one. Updated each animation frame while on screen, about once
+   * a second with reduced motion; never announced to screen readers.
+   */
+  function startLiveClock(){
+    var birth = parseIsoDate(state.birthDate);
+    var el = $('liveSeconds');
+    var sec = (Date.now() - birth.getTime()) / 1000;
+    var marks = [1e9, 2e9, 3e9];
+    var next = marks.filter(function(m){ return m > sec; })[0];
+    var sub;
+    if(next){
+      var when = new Date(birth.getTime() + next * 1000);
+      sub = 'You turn ' + (next / 1e9) + ' billion seconds old on ' + when.toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) + '.';
+    } else {
+      sub = 'You passed 3 billion seconds on ' + new Date(birth.getTime() + 3e12).toLocaleDateString('en-US', { month:'long', day:'numeric', year:'numeric' }) + '.';
+    }
+    $('liveSub').textContent = sub;
+
+    if(liveClock){ liveClock.birth = birth; return; }
+    liveClock = { birth:birth, onScreen:true };
+    var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var last = 0;
+    function paint(){
+      var s = Math.max(0, (Date.now() - liveClock.birth.getTime()) / 1000);
+      el.innerHTML = fmtInt(Math.floor(s)) + '<small>.' + Math.floor(s * 10 % 10) + '</small>';
+    }
+    function tick(now){
+      if(now - last > 90){ paint(); last = now; }
+      if(liveClock.onScreen) requestAnimationFrame(tick);
+    }
+    paint();
+    if(reduced){ setInterval(paint, 1000); return; }
+    if('IntersectionObserver' in window){
+      new IntersectionObserver(function(entries){
+        var was = liveClock.onScreen;
+        liveClock.onScreen = entries[0].isIntersecting;
+        if(liveClock.onScreen && !was) requestAnimationFrame(tick);
+      }).observe(el);
+    }
+    requestAnimationFrame(tick);
+  }
+
+  /**
+   * Updates the hero: the galaxy and the number at its centre.
    * @param {object|null} stats - result of computeLifeStats(), or null
    */
   function renderHeroRing(stats){
     var years = state.lifeExpectancy;
-    var C = 200, R_IN = 156, R_LONG = 144, R_OUT = 180, R_LABEL = 197;
-    var html = '<circle class="ring-guide" cx="200" cy="200" r="128"/>';
-    for(var i = 0; i < years; i++){
-      var a = i / years * 2 * Math.PI - Math.PI / 2;           // start at 12 o'clock, go clockwise
-      var cos = Math.cos(a), sin = Math.sin(a);
-      var decade = i % 10 === 0;
-      var r1 = decade ? R_LONG : R_IN;
-      var cls = !stats ? 'idle' : (stats.surpassed || i < stats.age.years) ? 'lived' : i === stats.age.years ? 'now' : 'ahead';
-      html += '<line class="tick ' + cls + (decade ? ' decade' : '') + '" style="--i:' + i + '"' +
-        ' x1="' + (C + r1 * cos).toFixed(1) + '" y1="' + (C + r1 * sin).toFixed(1) + '"' +
-        ' x2="' + (C + R_OUT * cos).toFixed(1) + '" y2="' + (C + R_OUT * sin).toFixed(1) + '"/>';
-      if(decade){
-        html += '<text class="tick-label" text-anchor="middle" x="' + (C + R_LABEL * cos).toFixed(1) + '" y="' + (C + R_LABEL * sin + 4).toFixed(1) + '">' + i + '</text>';
-      }
-    }
-    var svg = $('heroRing');
-    svg.innerHTML = html;
-    svg.style.setProperty('--n', years);
+    if(galaxy) galaxy.setStats(stats);
 
     var numEl = $('heroRingNum'), capEl = $('heroRingCap');
     if(!stats){
@@ -1165,6 +1438,7 @@
     animateNumber($('percentLivedNum'), stats.percentLived, { decimals:1, suffix:'%' });
 
     $('surpassedNote').hidden = !stats.surpassed;
+    startLiveClock();
 
     // The ring: a circle of radius 100 has a circumference of 2π·100, so
     // offsetting the dash by the share NOT yet lived leaves exactly the
@@ -1244,9 +1518,9 @@
     cell = Math.max(3, Math.min(narrow ? 10 : 12, cell));
     var step = cell + gap;
     var gridWidth = WEEKS_PER_ROW * cell + (WEEKS_PER_ROW - 1) * gap;
-    var grid = $('weeksGrid');
-    grid.style.setProperty('--cell', cell + 'px');
-    grid.style.setProperty('--gap', gap + 'px');
+    // Set on the frame, not the grid: the scan line (.weeks-frame::after) needs them too, and the grid inherits them.
+    frame.style.setProperty('--cell', cell + 'px');
+    frame.style.setProperty('--gap', gap + 'px');
     frame.style.setProperty('--axis', axis + 'px');
 
     // An age label every ten rows, plus a small marker on the current row.
@@ -1639,9 +1913,25 @@
       if(entry.isIntersecting){
         entry.target.classList.add('is-visible');
         revealObserver.unobserve(entry.target);
+        if(entry.target.id === 'lifeInWeeks') scanWeeksGrid();
       }
     });
   }, { threshold:0.12 }) : null;
+
+  /**
+   * Plays the scan over the weeks grid once (see .weeks-frame.scanning): a
+   * line of light runs down it and the rows appear behind it. The class is
+   * removed when the animation ends, so the grid is never left masked.
+   */
+  function scanWeeksGrid(){
+    var frame = $('weeksFrame');
+    frame.classList.add('scanning');
+    frame.addEventListener('animationend', function done(e){
+      if(e.target !== frame) return;
+      frame.classList.remove('scanning');
+      frame.removeEventListener('animationend', done);
+    });
+  }
 
   /** Hands a section to the observer above, or shows it immediately if the browser has none. */
   function observeReveal(el){
@@ -1892,6 +2182,51 @@
     }, { passive:true });
   }
 
+  /**
+   * A soft light that follows the mouse around the page (mouse only: on
+   * touch screens there is no pointer to follow). Positions are written to
+   * CSS variables at most once per frame.
+   */
+  function setupSpotlight(){
+    var el = $('spotlight');
+    if(!el || !window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    var x = 0, y = 0, queued = false;
+    window.addEventListener('pointermove', function(e){
+      if(e.pointerType !== 'mouse') return;
+      x = e.clientX; y = e.clientY;
+      el.classList.add('on');
+      if(queued) return;
+      queued = true;
+      requestAnimationFrame(function(){
+        el.style.setProperty('--sx', x + 'px');
+        el.style.setProperty('--sy', y + 'px');
+        queued = false;
+      });
+    }, { passive:true });
+    document.addEventListener('mouseleave', function(){ el.classList.remove('on'); });
+  }
+
+  /**
+   * Magnetic primary buttons: with a mouse, a button leans a few pixels
+   * towards the cursor while it hovers over it, and springs back when it
+   * leaves. Off with reduced motion.
+   */
+  function setupMagnetic(){
+    if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    Array.prototype.forEach.call(document.querySelectorAll('.btn-primary'), function(btn){
+      btn.addEventListener('pointermove', function(e){
+        if(e.pointerType !== 'mouse') return;
+        var r = btn.getBoundingClientRect();
+        btn.style.setProperty('--mx', ((e.clientX - r.left) / r.width - 0.5) * 10 + 'px');
+        btn.style.setProperty('--my', ((e.clientY - r.top) / r.height - 0.5) * 8 + 'px');
+      });
+      btn.addEventListener('pointerleave', function(){
+        btn.style.setProperty('--mx', '0px');
+        btn.style.setProperty('--my', '0px');
+      });
+    });
+  }
+
   /* ============================= INIT ============================= */
   /**
    * Entry point. Pre-fills the setup form from any saved state (so a
@@ -1919,6 +2254,9 @@
 
     bindEvents();
     setupScrollProgress();
+    setupSpotlight();
+    setupMagnetic();
+    try{ initGalaxy(); }catch(err){ /* no canvas: the hero simply shows the number without the galaxy */ }
 
     if(state.birthDate){
       revealResults(false);

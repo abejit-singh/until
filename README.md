@@ -8,11 +8,13 @@ No backend, no build step, no dependencies to install. Everything runs client-si
 
 ## Live features
 
-- **Your life.** Age in years and months, weeks lived and remaining, days lived, years remaining and the share of your chosen lifespan already lived.
-- **Your life in weeks.** A generated grid with one square per week and one row per year of age. The current week is highlighted, and hovering or tapping any square shows the date it represents.
-- **Habit calculator.** Turn daily hours (sleep, work, social media, etc.) into years of your life, shown as bars.
+- **The life ring.** The opening screen shows a ring with one tick per year of your chosen lifespan. Before you enter anything, a slow wave of light travels around it. Once you have, it shows your own years lived, this year and the years ahead.
+- **Live preview.** While you fill in the starting form, a small dot grid previews your life in weeks and fills in as soon as your date of birth is valid.
+- **Your life.** Age in years and months, weeks lived and remaining, days lived, years remaining and the share of your chosen lifespan already lived, also drawn as a ring.
+- **Your life in weeks.** A generated grid with one square per week and one row per year of age, with age labels every ten years. The current week is highlighted, and hovering or tapping any square shows the date it represents. Squares are sized in whole pixels so the grid stays sharp on every screen.
+- **Habit calculator.** Turn daily hours (sleep, work, social media, etc.) into years of your life, shown as bars, plus a 24-hour bar that shows how your day is split and how much of it is left unplanned.
 - **What If.** Drag a slider to see how many years and hours you'd get back by changing a habit. It never suggests sleeping less than 7 hours.
-- **Milestones.** Future goals with dates, shown in order on a timeline.
+- **Milestones.** Future goals with dates, shown in order on a timeline with a "Today" marker and how far away each one is.
 - **Make Today Count.** A closing, reflective screen with a random prompt.
 
 All numbers are computed live from the date of birth and life expectancy you enter. Nothing is hardcoded or simulated.

@@ -32,8 +32,8 @@ All numbers are computed live from the date of birth and life expectancy you ent
 
 No installation required.
 
-1. Download `index.html`.
-2. Open it in any modern browser (double-click, or drag it into a browser window).
+1. Download the repository (on GitHub: **Code → Download ZIP**) and unzip it.
+2. Open `index.html` in any modern browser (double-click, or drag it into a browser window). `style.css` and `script.js` need to stay in the same folder.
 
 An internet connection is used only to load Google Fonts (Inter, Space Grotesk, JetBrains Mono) on first load. Everything else works offline.
 
@@ -53,16 +53,18 @@ UNTIL collects nothing and sends nothing to any server it controls. There is no 
 - **What's stored:** your date of birth, life expectancy, habits and milestones. They are saved only in your browser's `localStorage`, under the key `until_state_v1`.
 - **Where it goes:** nowhere. It never leaves your device. There's no analytics, tracking, cookies or logging of any kind.
 - **The one external request:** Google Fonts (`fonts.googleapis.com`, `fonts.gstatic.com`), to load the site's typefaces. Like any font or image load on any website, this exposes your IP address to Google as a normal side effect of the request. UNTIL itself doesn't send Google, or anyone, any of your data.
-- **Security:** a Content Security Policy blocks any outside script or connection. All text you type is escaped before it is displayed, and saved data is validated every time it loads.
+- **Security:** a Content Security Policy lets the page run only its own `script.js` and blocks any outside script or connection. All text you type is escaped before it is displayed, and saved data is validated every time it loads.
 - **Clearing your data:** use the reset button (bottom-left of the site) at any time.
 
 ## Tech
 
-Vanilla HTML, CSS and JavaScript in a single, fully commented file. No frameworks, no build tools, no external JavaScript.
+Vanilla HTML, CSS and JavaScript in three plain, fully commented files. No frameworks, no build tools, no external JavaScript.
 
 | File | Purpose |
 | --- | --- |
-| `index.html` | The whole app: markup, styles and script |
+| `index.html` | The page: the markup of every section |
+| `style.css` | All the styles, organised by section, with a contents list at the top |
+| `script.js` | All the behaviour: state and saving, calculations, rendering, events |
 | `manifest.json` | App name, colours and icons for installation |
 | `service-worker.js` | Offline support and instant updates |
 | `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `favicon-32.png` | App icons |

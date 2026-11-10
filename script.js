@@ -57,23 +57,14 @@
 
   /* ============================= STATE ============================= */
 
-  /**
-   * Deep-clones a plain data object via a JSON round-trip. Only safe for
-   * data that survives JSON (no functions, Dates, undefined, etc.) — which
-   * is exactly what DEFAULT_STATE is, so this is a deliberate, cheap
-   * alternative to structuredClone() (used instead of it for wider browser
-   * support, since this app ships with no polyfills at all).
-   * @param {object} obj
-   * @returns {object} a fully independent copy of obj
-   */
+  /** Deep copy of plain JSON data (which is all DEFAULT_STATE holds). */
   function clone(obj) {
     return JSON.parse(JSON.stringify(obj));
   }
 
   /**
-   * Parses a value as a finite number and clamps it to [min, max]; anything
-   * unreadable becomes `fallback`. Used on every number typed by the user or
-   * read from storage, so negative hours or "NaN" never reach the maths.
+   * Reads a value as a number clamped to [min, max]; anything unreadable becomes
+   * `fallback`. Every number typed by the user or read from storage goes through here.
    * @param {*} value
    * @param {number} min
    * @param {number} max
@@ -108,17 +99,11 @@
   }
 
   /**
-   * Reads saved state from localStorage and rebuilds it field by field on
-   * top of DEFAULT_STATE, validating every value instead of trusting the
-   * stored object wholesale. That matters for three reasons:
-   * (1) if a future version adds a new state field, a visitor with old saved
-   *     data still gets a sane default for it instead of `undefined`;
-   * (2) if localStorage holds malformed JSON (corrupted, or edited by hand),
-   *     JSON.parse throws, we land in the catch block, and the app boots
-   *     with defaults instead of crashing;
-   * (3) stored text and ids end up inside HTML, so only clean values are
-   *     kept — a tampered entry can't inject markup or break the layout.
-   * @returns {object} the app's working state
+   * Loads the saved state, rebuilt field by field on top of DEFAULT_STATE.
+   * Nothing stored is trusted as it is: a missing field gets its default, broken
+   * JSON falls back to the defaults, and only clean text and ids are kept, since
+   * they end up in the page's HTML.
+   * @returns {object} the working state
    */
   function loadState() {
     const s = clone(DEFAULT_STATE);
@@ -158,12 +143,8 @@
   }
 
   /**
-   * Persists the current in-memory `state` to localStorage. Wrapped in
-   * try/catch because localStorage.setItem can throw — most commonly in
-   * Safari private browsing (where localStorage exists but is read-only
-   * with a 0-byte quota) or when a user has genuinely filled their quota.
-   * Either way, failing to save shouldn't crash the app; the user just
-   * keeps working for the rest of this session without persistence.
+   * Saves the state to localStorage. setItem can throw (Safari private mode, a full
+   * quota); the app then simply carries on for this session without saving.
    */
   function saveState() {
     try {
@@ -179,15 +160,10 @@
   /* ============================= HELPERS ============================= */
 
   /**
-   * Escapes text for safe insertion into HTML — both element content AND
-   * attribute values. All five significant characters are replaced, quotes
-   * included: activity names are written into `value="…"` attributes, and
-   * an unescaped `"` there would let a name like `" onfocus="…` close the
-   * attribute and add its own code. (The common shortcut of setting
-   * textContent and reading innerHTML back does NOT escape quotes, which is
-   * exactly why it isn't used here.)
-   * @param {*} value - value to escape (non-strings are coerced first).
-   * @returns {string} HTML-safe text.
+   * Escapes text for HTML, attribute values included: activity names are written
+   * into value="…", so quotes have to be escaped too.
+   * @param {*} value
+   * @returns {string}
    */
   function escapeHtml(value) {
     return String(value == null ? '' : value)
@@ -221,12 +197,11 @@
   }
 
   /**
-   * Whole calendar days between two dates. Each date is converted to UTC
-   * from its local year/month/day first, so a daylight-saving change (a
-   * "day" of 23 or 25 hours) can never make the count off by one.
+   * Whole calendar days from a to b. Both dates are taken as UTC midnights, so a
+   * daylight-saving change can't make the count off by one.
    * @param {Date} a
    * @param {Date} b
-   * @returns {number} b − a, in days
+   * @returns {number}
    */
   function daysBetween(a, b) {
     return Math.round(
@@ -251,12 +226,8 @@
   }
 
   /**
-   * Calendar-accurate age breakdown (years/months/days) between two dates.
-   * Deliberately not a division of the millisecond difference by an average
-   * month length — that drifts. This walks the actual calendar fields, the
-   * same way you'd count on your fingers: subtract years, then months, then
-   * borrow a month's worth of days if `now`'s day-of-month comes before
-   * `birth`'s.
+   * Exact age in years, months and days, counted on the calendar (borrowing a month
+   * when needed) rather than by dividing milliseconds.
    * @param {Date} birth
    * @param {Date} now
    * @returns {{years:number, months:number, days:number}}
@@ -278,27 +249,16 @@
   }
 
   /**
-   * The single source of truth for every number the site shows: age, weeks
-   * lived/remaining, and percentage of the chosen lifespan elapsed.
-   * Every other render function consumes this object rather than
-   * recomputing dates itself, so the grid, the stat cards, and the What-If
-   * section can never disagree with each other.
+   * Every figure the page shows about your life, computed in one place so the stat
+   * cards, the grid and What If always agree.
    *
-   * Two different notions of "week" are used on purpose:
-   *  - The headline numbers (weeks lived, weeks remaining) are real
-   *    7-day weeks between real dates: birth → today → the day you turn
-   *    your chosen life expectancy.
-   *  - The grid is laid out as exactly 52 squares per row, one row per
-   *    year of age, so a row always means "a year". The current square is
-   *    therefore placed by age: row = completed years, column = weeks
-   *    since your last birthday (capped at 51, because a year is 52 weeks
-   *    and one or two days). Placing it by "total days ÷ 7" instead would
-   *    drift about one square every 5–6 years, since a real year is
-   *    slightly longer than 52 weeks.
-   *
-   * @param {string} birthDateStr - ISO date string (YYYY-MM-DD) from the input.
-   * @param {number} lifeExpectancy - chosen life expectancy, in years.
-   * @returns {object} stats — see individual fields inline below.
+   * Two kinds of week, on purpose: the headline numbers are real 7-day weeks
+   * between dates, while the grid has exactly 52 squares per row (one row per
+   * year of age). This week's square is therefore placed by age, not by
+   * days ÷ 7, which would drift by a square every five or six years.
+   * @param {string} birthDateStr - YYYY-MM-DD
+   * @param {number} lifeExpectancy - in years
+   * @returns {object}
    */
   function computeLifeStats(birthDateStr, lifeExpectancy) {
     const now = new Date();
@@ -328,15 +288,10 @@
   }
 
   /**
-   * Animates a number inside `el` from the value it currently shows to
-   * `target`, using requestAnimationFrame rather than setInterval so it
-   * stays in sync with the browser's repaint cycle (no jank, pauses on a
-   * backgrounded tab). Eased with cubic ease-out so it settles rather than
-   * stopping abruptly. The last value is remembered on the element, so
-   * dragging the What-If slider moves the number smoothly from where it is
-   * instead of restarting from zero on every movement.
-   * @param {HTMLElement} el - element whose textContent gets updated each frame.
-   * @param {number} target - final value to land on.
+   * Counts the number shown in `el` up (or down) to `target`, easing out. It starts
+   * from the value last shown, so dragging a slider moves it smoothly.
+   * @param {HTMLElement} el
+   * @param {number} target
    * @param {{duration?:number, decimals?:number, suffix?:string, formatter?:function}} [opts]
    */
   function animateNumber(el, target, opts) {
@@ -354,6 +309,7 @@
       return;
     }
     let startTime = null;
+    // One frame: the eased value for the time elapsed, until the target is reached.
     function tick(now) {
       if (startTime === null) startTime = now;
       const progress = Math.min((now - startTime) / duration, 1);
@@ -399,6 +355,7 @@
    */
   function leave(el, done) {
     let finished = false;
+    // Calls `done` only once, whether the animation ends or the timer fires first.
     function finish() {
       if (!finished) {
         finished = true;
@@ -415,14 +372,7 @@
   }
 
   /* ============================= RENDER: YOUR LIFE ============================= */
-  /**
-   * Fills in the "Your Life" section (age, weeks remaining, and the four
-   * stat cards) from a single `stats` object produced by computeLifeStats.
-   * Note this function never computes anything itself — it's a pure
-   * read-and-display step, which is what keeps this section guaranteed
-   * consistent with the weeks grid below it (both read the same `stats`).
-   * @param {object} stats - result of computeLifeStats().
-   */
+  /** Fills in "Your life" (age, weeks left and the four stat cards) from computeLifeStats. */
   function renderYourLife(stats) {
     $('ageYears').textContent = stats.age.years;
     $('ageMonths').textContent = stats.age.months;
@@ -439,21 +389,11 @@
 
   /* ============================= RENDER: WEEKS GRID ============================= */
   /**
-   * Builds the "life in weeks" grid: one <div class="week-dot"> per week of
-   * the chosen life expectancy, classed past/current/future so CSS alone
-   * handles the three colors (see .week-dot.past/.current/.future).
-   *
-   * Two performance choices worth calling out for a grid that can exceed
-   * 5,000 elements (a 100-year lifespan × 52):
-   *  - Every dot is built in memory and appended once via a
-   *    DocumentFragment, instead of calling grid.appendChild() in the loop.
-   *    That's a single reflow instead of thousands.
-   *  - No per-dot event listeners are attached here — hover/click handling
-   *    is delegated once on the grid container in setupTooltip(), not
-   *    attached to each individual dot.
-   *
-   * @param {object} stats - result of computeLifeStats(); uses totalWeeks,
-   *   currentWeekIndex, and surpassed.
+   * Builds the weeks grid: one square per week of the chosen lifespan, classed
+   * past, current or future. The squares go in through a single DocumentFragment
+   * and events are delegated to the grid (see setupTooltip), so even 5,000+
+   * squares stay cheap.
+   * @param {object} stats - from computeLifeStats
    */
   function renderWeeksGrid(stats) {
     const grid = $('weeksGrid');
@@ -479,13 +419,9 @@
   }
 
   /**
-   * Reconstructs the real calendar date a given grid square represents,
-   * purely from its index — the grid itself stores no dates, only a
-   * 0-based week number in `dataset.week`. Row = year of age, column =
-   * week within that year, so square #942 (row 18, column 6) is
-   * "your 18th birthday + 6 weeks". Using the birthday of each row as the
-   * anchor keeps the dates exact, with no drift over a long life.
-   * @param {number} weekIndex - 0-based index of the square in the grid.
+   * The date a square stands for, worked out from its index:
+   * row = year of age, column = weeks since that birthday.
+   * @param {number} weekIndex
    * @returns {string} e.g. "Week 943 · Oct 2015 · age 18"
    */
   function weekTooltipText(weekIndex) {
@@ -498,17 +434,9 @@
   }
 
   /**
-   * Wires up hover/click on the weeks grid using event delegation: a
-   * *single* pair of listeners on the grid container, rather than one pair
-   * per square. With a grid that can hold 5,000+ squares, attaching a
-   * listener to each one would be needlessly expensive to set up and to
-   * garbage-collect on every re-render; delegation relies on mouse events
-   * bubbling from the square up to the container, where `e.target` still
-   * tells us exactly which square was under the cursor.
-   *
-   * Click is handled separately from hover so the tooltip also works on
-   * touch devices (which don't fire mousemove) — tapping a square shows the
-   * tooltip pinned near it for a couple of seconds, then auto-hides.
+   * Tooltip for the weeks grid, with one delegated listener on the grid rather
+   * than one per square. Hovering shows it under the mouse; a tap pins it for a
+   * couple of seconds, so it works on touch screens too.
    */
   function setupTooltip() {
     const tooltip = $('tooltip');
@@ -549,18 +477,9 @@
 
   /* ============================= RENDER: HABITS ============================= */
   /**
-   * Rebuilds the entire habit list from `state.activities`. Called after
-   * any structural change (add/remove a row) — full re-render is
-   * deliberate and simple here since the list is short (a handful of rows)
-   * and rebuilding it is cheap; there's no need for more surgical DOM
-   * patching. Editing a row's *value* in place (typing in a name or an
-   * hours field) is instead handled by a lighter-weight input listener in
-   * bindEvents(), which updates state and the chart without tearing down
-   * and rebuilding every row on every keystroke.
-   *
-   * `act.id` is written into `data-id` on each field so the delegated
-   * input/click handlers in bindEvents() can look up which activity in
-   * `state.activities` a given row belongs to.
+   * Rebuilds the habit list after a row is added or removed. Typing in a row does
+   * not come through here (see bindEvents), so a field is never replaced while
+   * you are using it.
    */
   function renderHabits() {
     const list = $('habitList');
@@ -582,18 +501,8 @@
   }
 
   /**
-   * Turns each named activity into "years of a lifetime spent on this",
-   * sorted largest-first so the biggest time sinks surface at the top —
-   * the whole point of this section is the surprise of seeing which
-   * habits actually add up. Bars scale relative to the *largest* item
-   * (not to lifeExpectancy itself), so the chart stays legible whether
-   * someone's biggest habit is 2 years or 30.
-   *
-   * The bar's width is set one frame after the element is inserted
-   * (via requestAnimationFrame) rather than inline, purely so the CSS
-   * transition on .chart-fill's width has a "from 0" starting point to
-   * animate from — setting the final width immediately would skip the
-   * animation, since the browser would never paint the 0% state.
+   * Years of life per activity, largest first, each bar scaled to the largest.
+   * Widths are set one frame after the bars are inserted, so they grow from zero.
    */
   function renderHabitChart() {
     const chart = $('habitChart');
@@ -650,14 +559,7 @@
   }
 
   /* ============================= WHAT IF ============================= */
-  /**
-   * Keeps the What-If dropdown's list of activities in sync with
-   * `state.activities` (an activity might have just been renamed, added,
-   * or removed). Rebuilding <option> elements would normally reset the
-   * dropdown to its first option — the `prevValue` / re-select dance below
-   * exists purely so the user's current selection survives a rebuild
-   * triggered by, say, editing a *different* row's name.
-   */
+  /** Refreshes the What If dropdown from the activity list, keeping the current choice. */
   function renderWhatIfOptions() {
     const select = $('whatIfSelect');
     const prevValue = select.value;
@@ -685,13 +587,8 @@
   const SLEEP_FLOOR_HOURS = 7;
 
   /**
-   * Heuristic match for "is this activity sleep", by name substring rather
-   * than a fixed activity id — activities are free-text and user-renamable,
-   * so there's no stable id to key off. Deliberately case-insensitive and
-   * permissive (matches "Sleep", "sleep schedule", "Sleeping in"): a false
-   * positive just applies a floor that doesn't hurt anything else, while a
-   * false negative would silently let the harmful suggestion through, so
-   * this errs on the side of catching more.
+   * True if an activity looks like sleep. Names are free text, so the match is
+   * loose ("Sleep", "sleeping in"…): better to protect one activity too many.
    * @param {string} name
    * @returns {boolean}
    */
@@ -700,20 +597,9 @@
   }
 
   /**
-   * Recomputes the What-If result (years/hours "recovered") whenever the
-   * selected activity or the target slider changes. Also enforces the
-   * sleep floor described above: if the selected activity looks like
-   * sleep, the slider's own `min` attribute is raised to
-   * min(SLEEP_FLOOR_HOURS, currentHours) — making it physically impossible
-   * to drag the slider into an unhealthy range, rather than allowing the
-   * drag and then clamping the displayed result after the fact.
-   *
-   * `needsReset` re-centers the slider (at half the current hours, or the
-   * sleep floor if that's higher) whenever the selection changes to a
-   * *different* activity, or whenever the previous value would now be
-   * out of the new activity's valid range — without this, switching from
-   * "Gaming: 3h" to "Sleep: 8h" could leave the slider sitting at a
-   * leftover value that makes no sense for the new selection.
+   * Recomputes What If when the activity or the target changes. For sleep, the
+   * slider's minimum is raised to the 7-hour floor, so it can't even be dragged
+   * lower. Choosing another activity puts the slider back in the middle.
    */
   function updateWhatIf() {
     const select = $('whatIfSelect');
@@ -835,15 +721,9 @@
   const GATED_IDS = ['yourLife', 'lifeInWeeks', 'timeGoes', 'whatIf', 'yourFuture', 'finale'];
 
   /**
-   * Runs once the user submits their birth date/life expectancy (or on
-   * page load, for a returning visitor with saved data). Computes stats
-   * once, feeds every section from that single result, then un-hides the
-   * result sections and hands them to the IntersectionObserver so each
-   * fades in the first time it scrolls into view.
-   * @param {boolean} scrollTo - whether to auto-scroll to the results (true
-   *   on manual submit; false on silent restore from localStorage, so a
-   *   returning visitor lands where they left off instead of being yanked
-   *   down the page).
+   * Fills every section from one computeLifeStats result and reveals them.
+   * @param {boolean} scrollTo - scroll down to the results: yes after the form is
+   *   submitted, no when a returning visitor's data is restored
    */
   function revealResults(scrollTo) {
     currentStats = computeLifeStats(state.birthDate, state.lifeExpectancy);
@@ -875,15 +755,8 @@
   }
 
   /**
-   * Validates and commits the setup form (birth date + life expectancy),
-   * then triggers the reveal sequence. Three checks guard against three
-   * different real mistakes, in order of how likely they are to happen by
-   * accident: an empty field, a date that doesn't exist on the calendar
-   * (isIsoDate), a date in the future (a typo, e.g.
-   * 2124 instead of 1994), and finally an implausible age (>130) as a
-   * last sanity net — not a hard biological limit, just a threshold well
-   * past any plausible human age, to catch stray typos the earlier checks
-   * wouldn't (like a birth year of 1800).
+   * Checks the setup form (both fields filled, a real date, not in the future,
+   * an age under 130 to catch typos), saves it and shows the results.
    */
   function handleShowLife() {
     const birthInput = $('birthDate');
@@ -919,13 +792,8 @@
 
   /* ============================= EVENTS ============================= */
   /**
-   * All event wiring lives in this one function, called once from init().
-   * Two delegation patterns recur throughout: list containers (habitList,
-   * milestoneList) get one 'input'/'click' listener each rather than
-   * per-row listeners, using each row's `data-id` to identify which item
-   * in `state` it corresponds to — the same reasoning as the weeks-grid
-   * tooltip above, just applied to a shorter, editable list instead of a
-   * read-only grid.
+   * All event wiring, called once from init. The habit and milestone lists each
+   * have one delegated listener; a row's data-id says which item it belongs to.
    */
   function bindEvents() {
     $('ctaStart').addEventListener('click', () => {
@@ -1081,16 +949,10 @@
   const MAGNET_SELECTOR = '.btn-primary';
 
   /**
-   * Pointer effects, for mouse users only: on touch screens there is no
-   * hover, and the effects would only get in the way. A single listener for
-   * the whole page; on each animation frame it finds the card, tilting card
-   * and button under the pointer and writes the pointer's position into
-   * their CSS variables:
-   *  - --px / --py: where the light is drawn on a card;
-   *  - --rx / --ry: the tilt, a few degrees at most;
-   *  - --mx / --my: the pull on a button.
-   * When the pointer leaves an element its variables are removed and CSS
-   * eases it back. Tilt and pull are skipped with reduced motion.
+   * Pointer effects, for mouse users only. One listener for the page writes the
+   * pointer position into CSS variables on the element under it: --px / --py (the
+   * light on a card), --rx / --ry (a slight tilt), --mx / --my (a button's pull).
+   * Tilt and pull are skipped when reduced motion is on.
    */
   function setupPointerEffects() {
     if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
@@ -1100,6 +962,7 @@
       tilted = null,
       pulled = null;
 
+    // Drops a pair of CSS variables, so the element eases back to rest.
     function clear(el, a, b) {
       if (el) {
         el.style.removeProperty(a);
@@ -1107,6 +970,7 @@
       }
     }
 
+    // Once per frame: light, tilt and pull for whatever is under the pointer now.
     function apply() {
       queued = false;
       const t = last.target && last.target.closest ? last.target : null;
@@ -1159,16 +1023,9 @@
 
   /* ============================= INIT ============================= */
   /**
-   * Entry point. Pre-fills the setup form from any saved state (so a
-   * returning visitor sees their own numbers rather than the defaults),
-   * sets sane native min/max bounds on the date input (today, and 130
-   * years back — matching the sanity check in handleShowLife so the
-   * browser's own date picker refuses the same implausible range before
-   * the user can even submit it), wires up all event listeners, and — if
-   * there's saved data — immediately runs the same reveal path a manual
-   * submit would (with `scrollTo:false`, since a returning visitor should
-   * land on the results without being scrolled away from wherever the
-   * page opened).
+   * Entry point: refills the form from saved data, limits the date picker to the
+   * last 130 years, wires the events and shows a returning visitor's results
+   * straight away.
    */
   function init() {
     // Local dates (not toISOString(), which is UTC and can be "yesterday" just after midnight in Italy).

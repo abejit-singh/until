@@ -313,7 +313,7 @@
     function tick(now) {
       if (startTime === null) startTime = now;
       const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - (1 - progress) ** 3;
       el.textContent = render(from + (target - from) * eased);
       // Stop if a newer call has taken over this element.
       if (progress < 1 && el._value === target) requestAnimationFrame(tick);

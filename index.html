@@ -3,8 +3,8 @@
   UNTIL — You don't have forever.
   © 2026 Abejit. All rights reserved. See README.md.
 
-  The page itself: the markup of every section. Styles live in style.css,
-  behaviour in script.js; there is no build step.
+  The page itself: the markup of every section. Styles live in
+  css/style.css, behaviour in js/script.js; there is no build step.
   The only external resource is Google Fonts. No user data is ever sent anywhere.
 -->
 <html lang="en">
@@ -12,7 +12,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <!--
-  Content Security Policy: the page may only run its own script (script.js),
+  Content Security Policy: the page may only run its own script (js/script.js),
   load styles and fonts from Google Fonts, and make no other network
   requests. With no server this is defence in depth: even injected markup
   couldn't load outside code or send data anywhere.
@@ -28,9 +28,9 @@
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="UNTIL — You don't have forever.">
 <meta name="twitter:description" content="Visualize the time you've lived, the time you may have left, and what you're doing with it.">
-<link rel="icon" type="image/png" href="favicon-32.png">
+<link rel="icon" type="image/png" href="icons/favicon-32.png">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -38,7 +38,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
@@ -178,6 +178,6 @@
   <span>Your data stays on this device — the only outside request is for fonts (Google Fonts).</span>
 </footer>
 
-<script src="script.js"></script>
+<script src="js/script.js"></script>
 </body>
 </html>

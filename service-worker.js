@@ -4,7 +4,7 @@
  * Makes the app installable and usable offline after the first visit.
  *
  * Two strategies:
- *  - The app's own files (the page, style.css, script.js, icons, manifest):
+ *  - The app's own files (the page, its CSS and JS, the icons, the manifest):
  *    NETWORK FIRST. When online the latest version is always used, so an
  *    update published on GitHub Pages shows on the very next visit and the
  *    page, its styles and its script always come from the same release.
@@ -16,18 +16,18 @@
  * is ever sent anywhere: this file only keeps copies of what the page
  * downloads anyway. Bump CACHE_NAME whenever an app file changes.
  */
-const CACHE_NAME = 'until-cache-v7';
+const CACHE_NAME = 'until-cache-v8';
 
 const APP_SHELL = [
   './',
   './index.html',
-  './style.css',
-  './script.js',
+  './css/style.css',
+  './js/script.js',
   './manifest.json',
-  './favicon-32.png',
-  './apple-touch-icon.png',
-  './icon-192.png',
-  './icon-512.png'
+  './icons/favicon-32.png',
+  './icons/apple-touch-icon.png',
+  './icons/icon-192.png',
+  './icons/icon-512.png'
 ];
 
 /** Third-party hosts whose responses may be cached (public, static files only). */

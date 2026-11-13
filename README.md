@@ -33,7 +33,7 @@ All numbers are computed live from the date of birth and life expectancy you ent
 No installation required.
 
 1. Download the repository (on GitHub: **Code → Download ZIP**) and unzip it.
-2. Open `index.html` in any modern browser (double-click, or drag it into a browser window). `style.css` and `script.js` need to stay in the same folder.
+2. Open `index.html` in any modern browser (double-click, or drag it into a browser window). Keep the folders as they are (`css/`, `js/`, `icons/`).
 
 An internet connection is used only to load Google Fonts (Inter, Space Grotesk, JetBrains Mono) on first load. Everything else works offline.
 
@@ -63,11 +63,11 @@ Vanilla HTML, CSS and JavaScript in three plain, fully commented files. No frame
 | File | Purpose |
 | --- | --- |
 | `index.html` | The page: the markup of every section |
-| `style.css` | All the styles, organised by section, with a contents list at the top |
-| `script.js` | All the behaviour: state and saving, calculations, rendering, events |
+| `css/style.css` | All the styles, organised by section, with a contents list at the top |
+| `js/script.js` | All the behaviour: state and saving, calculations, rendering, events |
 | `manifest.json` | App name, colours and icons for installation |
 | `service-worker.js` | Offline support and instant updates |
-| `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `favicon-32.png` | App icons |
+| `icons/` | App icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `favicon-32.png` |
 
 ## Disclaimer
 

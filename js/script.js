@@ -108,13 +108,16 @@
   function loadState() {
     const s = clone(DEFAULT_STATE);
     try {
+      // 1. Read what was saved; a first visit keeps the defaults.
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) return s;
       const p = JSON.parse(raw) || {};
+      // 2. Birth date and life expectancy: kept only if valid.
       if (isIsoDate(p.birthDate) && p.birthDate <= todayIso()) s.birthDate = p.birthDate;
       s.lifeExpectancy = Math.round(
         num(p.lifeExpectancy, LIMITS.lifeExpectancy[0], LIMITS.lifeExpectancy[1], 80)
       );
+      // 3. Activities and milestones, rebuilt one by one: safe ids, trimmed names, clamped hours.
       const safeId = (id, prefix) => (typeof id === 'string' && /^[\w-]{1,40}$/.test(id) ? id : uid(prefix));
       if (Array.isArray(p.activities)) {
         s.activities = p.activities
@@ -443,6 +446,7 @@
     const grid = $('weeksGrid');
     let hideTimer = null;
 
+    // Mouse: the tooltip follows the pointer over the squares.
     grid.addEventListener('mousemove', (e) => {
       const target = e.target.closest ? e.target.closest('.week-dot') : null;
       if (!target || !currentStats) {
@@ -459,6 +463,7 @@
       tooltip.style.opacity = 0;
     });
 
+    // Tap or click: the tooltip is pinned above the square for a moment.
     grid.addEventListener('click', (e) => {
       const target = e.target.closest ? e.target.closest('.week-dot') : null;
       if (!target || !currentStats) return;
@@ -508,6 +513,7 @@
     const chart = $('habitChart');
     const empty = $('habitChartEmpty');
     chart.innerHTML = '';
+    // 1. Years of life per named activity, largest first.
     const le = state.lifeExpectancy;
     const items = state.activities
       .filter((a) => a.name && a.name.trim())
@@ -518,10 +524,12 @@
       }))
       .sort((a, b) => b.years - a.years);
 
+    // 2. Nothing named yet: show the placeholder instead.
     empty.hidden = items.length > 0;
     if (items.length === 0) return;
 
-    const max = Math.max.apply(null, items.map((i) => i.years).concat([1]));
+    // 3. One row per activity; bars are scaled to the largest (at least one year).
+    const max = Math.max(1, ...items.map((i) => i.years));
 
     items.forEach((item) => {
       const row = document.createElement('div');
@@ -610,6 +618,7 @@
     const hoursEl = $('whatIfHours');
     const sleepNote = $('whatIfSleepNote');
 
+    // 1. No activity to change yet: reset the section.
     if (!act) {
       currentLabel.textContent = '—';
       targetSlider.value = 0;
@@ -621,6 +630,7 @@
       return;
     }
 
+    // 2. The slider runs from the sleep floor (or 0) up to today's hours.
     currentLabel.textContent = Number(act.hours).toFixed(2);
 
     const sleepFloor = isSleepActivity(act.name) ? Math.min(SLEEP_FLOOR_HOURS, act.hours) : 0;
@@ -628,6 +638,7 @@
     targetSlider.max = act.hours;
     if (sleepNote) sleepNote.hidden = !isSleepActivity(act.name);
 
+    // 3. A different activity, or a value now out of range: back to the middle.
     const needsReset =
       targetSlider.dataset.actId !== act.id ||
       parseFloat(targetSlider.value) > act.hours ||
@@ -637,10 +648,12 @@
       targetSlider.dataset.actId = act.id;
     }
 
+    // 4. The new daily target.
     let target = parseFloat(targetSlider.value) || 0;
     if (target < sleepFloor) target = sleepFloor; // belt-and-suspenders in case `min` was bypassed programmatically
     $('whatIfTargetValue').textContent = target.toFixed(2);
 
+    // 5. Hours saved each day, over the years you may have left.
     const savedPerDay = Math.max(0, act.hours - target);
     const remainingYears = currentStats ? currentStats.remainingYears : 0;
     const yearsGained = (savedPerDay / 24) * remainingYears;
@@ -765,6 +778,7 @@
     const birthVal = birthInput.value;
     const le = Math.round(num(leInput.value, LIMITS.lifeExpectancy[0], LIMITS.lifeExpectancy[1], 80));
 
+    // 1. Check the date: present, real, not in the future, a plausible age.
     if (!birthVal) {
       showError('Please enter your date of birth.');
       return;
@@ -782,6 +796,7 @@
       return;
     }
 
+    // 2. Save and show the results.
     errorEl.hidden = true;
     state.birthDate = birthVal;
     state.lifeExpectancy = le;
@@ -796,6 +811,7 @@
    * have one delegated listener; a row's data-id says which item it belongs to.
    */
   function bindEvents() {
+    // Hero and setup form.
     $('ctaStart').addEventListener('click', () => {
       $('setup').scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
@@ -807,8 +823,10 @@
       paintRange(e.target);
     });
 
+    // Weeks grid.
     setupTooltip();
 
+    // Habits: typing in a row updates the chart without rebuilding the list.
     $('habitList').addEventListener('input', (e) => {
       const id = e.target.dataset.id;
       if (!id) return;
@@ -830,6 +848,7 @@
       if (act) e.target.value = act.hours;
     });
 
+    // Habits: removing a row (it slides out first) and adding one.
     $('habitList').addEventListener('click', (e) => {
       if (e.target.classList.contains('habit-remove')) {
         const id = e.target.dataset.id;
@@ -853,9 +872,11 @@
       if (last) last.focus();
     });
 
+    // What if.
     $('whatIfSelect').addEventListener('change', updateWhatIf);
     $('whatIfTarget').addEventListener('input', updateWhatIf);
 
+    // Milestones: adding one (name and a valid date) and removing one.
     $('milestoneForm').addEventListener('submit', (e) => {
       e.preventDefault();
       const nameInput = $('milestoneName');
@@ -893,6 +914,7 @@
       }
     });
 
+    // Finale: a random prompt, replayed from the start each time.
     $('ctaFinale').addEventListener('click', () => {
       const q = QUOTES[Math.floor(Math.random() * QUOTES.length)];
       const el = $('finaleQuote');
@@ -902,6 +924,7 @@
       el.classList.add('show');
     });
 
+    // Reset: erase everything after a confirmation.
     $('resetBtn').addEventListener('click', () => {
       if (!confirm('Erase all your UNTIL data? This can\u2019t be undone.')) return;
       try {

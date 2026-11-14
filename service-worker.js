@@ -3,35 +3,33 @@
  *
  * Makes the app installable and usable offline after the first visit.
  *
- * Two strategies:
- *  - The app's own files (the page, its CSS and JS, the icons, the manifest):
- *    NETWORK FIRST. When online the latest version is always used, so an
- *    update published on GitHub Pages shows on the very next visit and the
- *    page, its styles and its script always come from the same release.
- *    The cached copies are only used offline.
- *  - Third-party files (Google Fonts): STALE-WHILE-REVALIDATE.
- *    Served instantly from the cache, refreshed in the background.
+ * Every file comes from this site and the strategy is NETWORK FIRST: when
+ * online the latest version is always used, so an update published on GitHub
+ * Pages shows on the very next visit, and the page, its styles and its scripts
+ * always come from the same release. The cached copies are only used offline.
  *
- * Only this app's own files and Google Fonts are ever cached, and nothing
- * is ever sent anywhere: this file only keeps copies of what the page
- * downloads anyway. Bump CACHE_NAME whenever an app file changes.
+ * Nothing is ever sent anywhere: this file only keeps copies of what the page
+ * downloads anyway. Bump CACHE_NAME whenever a file in APP_SHELL is added,
+ * renamed or removed (tests/unit/app-shell.test.js checks the list).
  */
-const CACHE_NAME = 'until-cache-v8';
+const CACHE_NAME = 'until-cache-v9';
 
+/** Everything the app needs to start offline. Fonts for other alphabets are cached when first used. */
 const APP_SHELL = [
   './',
   './index.html',
+  './css/fonts.css',
   './css/style.css',
   './js/script.js',
   './manifest.json',
-  './icons/favicon-32.png',
   './icons/apple-touch-icon.png',
+  './icons/favicon-32.png',
   './icons/icon-192.png',
-  './icons/icon-512.png'
+  './icons/icon-512.png',
+  './fonts/inter-latin.woff2',
+  './fonts/jetbrains-mono-latin.woff2',
+  './fonts/space-grotesk-latin.woff2'
 ];
-
-/** Third-party hosts whose responses may be cached (public, static files only). */
-const CACHEABLE_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com'];
 
 // Install: pre-cache the app shell, then activate right away.
 self.addEventListener('install', (event) => {
@@ -49,43 +47,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-/** Stores a copy of a successful response (or an opaque cross-origin font file). */
-function remember(cache, request, response) {
-  if (response && (response.ok || response.type === 'opaque')) cache.put(request, response.clone());
-  return response;
-}
-
+// Fetch: this site's files only. The network when online (keeping a copy), the cache when offline.
 self.addEventListener('fetch', (event) => {
   const req = event.request;
-  if (req.method !== 'GET') return;
-  const url = new URL(req.url);
-  const sameOrigin = url.origin === self.location.origin;
-  if (!sameOrigin && !CACHEABLE_HOSTS.includes(url.hostname)) return; // not ours: the browser handles it
-  event.respondWith(sameOrigin ? networkFirst(req) : staleWhileRevalidate(req));
+  if (req.method !== 'GET' || new URL(req.url).origin !== self.location.origin) return;
+  event.respondWith(
+    caches.open(CACHE_NAME).then((cache) =>
+      fetch(req)
+        .then((res) => {
+          if (res.ok) cache.put(req, res.clone());
+          return res;
+        })
+        .catch(() =>
+          cache
+            .match(req)
+            .then((hit) => hit || (req.mode === 'navigate' ? cache.match('./index.html') : undefined))
+            .then((hit) => hit || Response.error())
+        )
+    )
+  );
 });
-
-/** The app's own files: the network when online, the cache when offline (a page falls back to index.html). */
-function networkFirst(req) {
-  return caches.open(CACHE_NAME).then((cache) =>
-    fetch(req)
-      .then((res) => remember(cache, req, res))
-      .catch(() =>
-        cache
-          .match(req)
-          .then((hit) => hit || (req.mode === 'navigate' ? cache.match('./index.html') : undefined))
-          .then((hit) => hit || Response.error())
-      )
-  );
-}
-
-/** Third-party static files: straight from the cache if there, refreshed in the background. */
-function staleWhileRevalidate(req) {
-  return caches.open(CACHE_NAME).then((cache) =>
-    cache.match(req).then((cached) => {
-      const network = fetch(req)
-        .then((res) => remember(cache, req, res))
-        .catch(() => cached || Response.error());
-      return cached || network;
-    })
-  );
-}

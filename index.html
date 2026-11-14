@@ -4,7 +4,8 @@
   © 2026 Abejit. All rights reserved. See README.md.
 
   The page itself: the markup of every section. Styles live in
-  css/style.css, behaviour in js/script.js; there is no build step.
+  css/style.css, behaviour in the modules under js/ (start-up: js/main.js);
+  there is no build step.
   Everything is served from this site, fonts included. No user data is ever
   sent anywhere.
 -->
@@ -183,6 +184,6 @@
   <span>Your data stays on this device — the only outside request is for fonts (Google Fonts).</span>
 </footer>
 
-<script src="js/script.js"></script>
+<script type="module" src="js/main.js"></script>
 </body>
 </html>

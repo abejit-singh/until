@@ -2,6 +2,8 @@
 
 **You don't have forever.**
 
+[![CI](https://github.com/abejit-singh/until/actions/workflows/ci.yml/badge.svg)](https://github.com/abejit-singh/until/actions/workflows/ci.yml)
+
 **Live:** [abejit-singh.github.io/until](https://abejit-singh.github.io/until/)
 
 UNTIL is a single-page, interactive visualization of your life: how much of it you've lived, how much you may have left, and what your daily habits are quietly costing you in years.
@@ -60,6 +62,8 @@ The page is made of ES modules, which browsers only load from a server: opening 
 | `npm test`          | Both kinds of test                                        |
 
 The browser tests use [Playwright](https://playwright.dev), which needs its browser once: `npx playwright install chromium`.
+
+The same checks run on GitHub Actions at every push (`.github/workflows/ci.yml`).
 
 ## Project structure
 

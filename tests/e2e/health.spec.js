@@ -1,4 +1,6 @@
 // Checks that hold for the whole page, whatever the app does.
+import AxeBuilder from '@axe-core/playwright';
+
 import { expect, sidewaysOverflow, test } from './helpers.js';
 
 test('loads without errors and makes no request to another site', async ({ page }) => {
@@ -23,6 +25,15 @@ test('uses its own typefaces', async ({ page }) => {
   await page.evaluate(() => document.fonts.ready);
   const loaded = await page.evaluate(() => [...document.fonts].filter((f) => f.status === 'loaded').length);
   expect(loaded).toBeGreaterThanOrEqual(3);
+});
+
+test('has no accessibility violations on the opening screen (axe, WCAG 2.2 AA)', async ({ page }) => {
+  await page.goto('/');
+  await page.waitForLoadState('networkidle');
+  const results = await new AxeBuilder({ page })
+    .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
+    .analyze();
+  expect(results.violations.map((v) => `${v.id}: ${v.help}`)).toEqual([]);
 });
 
 test.describe('offline', () => {

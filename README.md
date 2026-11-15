@@ -19,14 +19,14 @@ All numbers are computed live from the date of birth and life expectancy you ent
 
 ## How the numbers are calculated
 
-| Figure | Formula |
-| --- | --- |
-| Age | calendar years and months since your date of birth |
-| Weeks lived / remaining | whole 7-day weeks from your birth to today, and from today to the day you turn your chosen life expectancy |
-| Life elapsed | days lived ÷ days from birth to that day |
-| Grid | 52 squares per row, one row per year of age. This week's square sits at row = your age, column = weeks since your last birthday. |
-| Habit in years | hours per day ÷ 24 × life expectancy |
-| What If | hours saved per day ÷ 24 × years remaining |
+| Figure                  | Formula                                                                                                                          |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Age                     | calendar years and months since your date of birth                                                                               |
+| Weeks lived / remaining | whole 7-day weeks from your birth to today, and from today to the day you turn your chosen life expectancy                       |
+| Life elapsed            | days lived ÷ days from birth to that day                                                                                         |
+| Grid                    | 52 squares per row, one row per year of age. This week's square sits at row = your age, column = weeks since your last birthday. |
+| Habit in years          | hours per day ÷ 24 × life expectancy                                                                                             |
+| What If                 | hours saved per day ÷ 24 × years remaining                                                                                       |
 
 ## Running it locally
 
@@ -60,14 +60,14 @@ UNTIL collects nothing and sends nothing to any server it controls. There is no 
 
 Vanilla HTML, CSS and JavaScript in three plain, fully commented files. No frameworks, no build tools, no external JavaScript.
 
-| File | Purpose |
-| --- | --- |
-| `index.html` | The page: the markup of every section |
-| `css/style.css` | All the styles, organised by section, with a contents list at the top |
-| `js/script.js` | All the behaviour: state and saving, calculations, rendering, events |
-| `manifest.json` | App name, colours and icons for installation |
-| `service-worker.js` | Offline support and instant updates |
-| `icons/` | App icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `favicon-32.png` |
+| File                | Purpose                                                                             |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| `index.html`        | The page: the markup of every section                                               |
+| `css/style.css`     | All the styles, organised by section, with a contents list at the top               |
+| `js/script.js`      | All the behaviour: state and saving, calculations, rendering, events                |
+| `manifest.json`     | App name, colours and icons for installation                                        |
+| `service-worker.js` | Offline support and instant updates                                                 |
+| `icons/`            | App icons: `icon-192.png`, `icon-512.png`, `apple-touch-icon.png`, `favicon-32.png` |
 
 ## Disclaimer
 

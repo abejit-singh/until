@@ -135,7 +135,7 @@ export function bindEvents() {
     if (!confirm('Erase all your UNTIL data? This can\u2019t be undone.')) return;
     try {
       localStorage.removeItem(STORAGE_KEY);
-    } catch (err) {
+    } catch {
       /* storage unavailable: nothing to erase */
     }
     location.reload();

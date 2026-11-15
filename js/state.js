@@ -47,7 +47,7 @@ function loadState() {
           date: m.date
         }));
     }
-  } catch (e) {
+  } catch {
     /* unreadable data: start from defaults rather than crash */
   }
   return s;
@@ -60,7 +60,7 @@ function loadState() {
 export function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (e) {
+  } catch {
     /* storage unavailable — fail silently, app still works this session */
   }
 }

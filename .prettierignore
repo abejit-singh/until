@@ -1,0 +1,10 @@
+# Third-party files, kept exactly as distributed
+fonts/
+
+# Generated
+package-lock.json
+test-results/
+playwright-report/
+
+# The page is formatted by hand: one section per block
+index.html

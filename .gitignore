@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Test output
+test-results/
+playwright-report/
+
+# System files
+.DS_Store

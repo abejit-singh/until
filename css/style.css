@@ -151,7 +151,8 @@ body::before {
   inset: -15%;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(38% 32% at 18% 14%, rgba(141, 255, 106, 0.085), transparent 72%),
+  background:
+    radial-gradient(38% 32% at 18% 14%, rgba(141, 255, 106, 0.085), transparent 72%),
     radial-gradient(34% 30% at 84% 86%, rgba(70, 225, 180, 0.055), transparent 72%);
   animation: drift 34s ease-in-out infinite alternate;
 }
@@ -732,7 +733,8 @@ input[type='range']::-moz-range-track {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  background: radial-gradient(
+  background:
+    radial-gradient(
       320px circle at var(--px, 50%) var(--py, 50%),
       rgba(141, 255, 106, calc(var(--light, 0) * 0.08)),
       transparent 65%
@@ -983,7 +985,8 @@ input[type='range']::-moz-range-track {
    the transition runs. */
 .chart-fill {
   height: 100%;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 60%),
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.35), transparent 60%),
     linear-gradient(90deg, rgba(141, 255, 106, 0.35), var(--accent));
   border-radius: 6px;
   transition: width 1s var(--ease);
